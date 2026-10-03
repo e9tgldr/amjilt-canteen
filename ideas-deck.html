@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="mn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Дөрвөн бүтээгдэхүүн</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#FAF9F6;--surf:#fff;--sunken:#F3F1EC;--line:#E6E3DC;--line2:#D5D1C7;
+  --t1:#1A1D1C;--t2:#5C6563;--t3:#8E9795;--ok:#12855F;--bad:#D0342C;--warn:#E8A317;
+  --f:"Nunito",system-ui,sans-serif;
+  /* per-idea accents, swapped per slide */
+  --a:#0E6B4F;--a2:#6BD4AE;--a3:#052E22;--aw:#EEFBF5;--aw2:#A9E9D0;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font:500 16px/1.5 var(--f);color:var(--t1);background:#151A1D;overflow:hidden;
+  -webkit-font-smoothing:antialiased;font-variant-numeric:tabular-nums}
+#stage{position:absolute;top:50%;left:50%;width:1920px;height:1080px;
+  transform-origin:center center;transform:translate(-50%,-50%)}
+.slide{position:absolute;inset:0;background:var(--bg);display:none;flex-direction:column;
+  padding:74px 96px;overflow:hidden}
+.slide.on{display:flex}
+.slide.dark{background:
+  radial-gradient(1100px 700px at 16% -10%,color-mix(in srgb,var(--a2) 22%,transparent),transparent 62%),
+  linear-gradient(155deg,var(--a3),color-mix(in srgb,var(--a3) 88%,#000));
+  color:#fff}
+
+.bar{position:absolute;left:0;right:0;bottom:30px;display:flex;align-items:center;
+  justify-content:space-between;padding:0 96px;font:700 13px/1 var(--f);color:var(--t3)}
+.dark .bar{color:rgba(255,255,255,.45)}
+.dots{display:flex;gap:7px}
+.dots i{width:7px;height:7px;border-radius:7px;background:var(--line2);cursor:pointer;transition:.2s}
+.slide.on .dots i.cur{width:26px;background:var(--a)}
+.dark .slide.on .dots i.cur{background:var(--a2)}
+.hint{position:fixed;bottom:14px;left:50%;transform:translateX(-50%);z-index:99;
+  font:600 12px/1 var(--f);color:rgba(255,255,255,.32);pointer-events:none;transition:opacity .4s}
+body.hide .hint{opacity:0}
+
+h1.big{font:800 76px/1.05 var(--f);letter-spacing:-2.6px}
+h2.big{font:800 54px/1.08 var(--f);letter-spacing:-1.8px}
+h3.big{font:800 32px/1.15 var(--f);letter-spacing:-.9px}
+.lede{font:500 21px/1.55 var(--f);color:var(--t2);max-width:66ch}
+.dark .lede{color:rgba(255,255,255,.72)}
+.eyebrow{font:800 13px/1 var(--f);letter-spacing:2.4px;color:var(--a);margin-bottom:20px}
+.dark .eyebrow{color:var(--a2)}
+.cap{font:700 12px/1 var(--f);letter-spacing:1.4px;color:var(--t3);text-transform:uppercase}
+.mark{width:56px;height:56px;border-radius:16px;background:linear-gradient(160deg,var(--a),var(--a3));
+  display:grid;place-items:center;box-shadow:0 8px 22px rgba(0,0,0,.18);font-size:26px}
+
+.panel{background:var(--surf);border-radius:22px;padding:26px;box-shadow:0 1px 3px rgba(26,29,28,.05)}
+.pt{font:800 18px/1.25 var(--f);letter-spacing:-.2px}
+.ps{font:500 13px/1.4 var(--f);color:var(--t2);margin-top:4px}
+.stat{background:var(--surf);border-radius:20px;padding:22px;box-shadow:0 1px 3px rgba(26,29,28,.05)}
+.stat .k{font:700 11px/1 var(--f);letter-spacing:.6px;text-transform:uppercase;color:var(--t3)}
+.stat .v{font:800 42px/1 var(--f);letter-spacing:-1.6px;margin-top:10px}
+.stat .d{font:500 13px/1.4 var(--f);color:var(--t2);margin-top:7px}
+.tiles{display:grid;gap:18px}
+.tiles.c4{grid-template-columns:repeat(4,1fr)}
+.tiles.c3{grid-template-columns:repeat(3,1fr)}
+.tiles.c2{grid-template-columns:repeat(2,1fr)}
+.badge{display:inline-flex;align-items:center;height:30px;padding:0 13px;border-radius:999px;
+  background:var(--aw);color:var(--a);font:800 13px/1 var(--f)}
+.pill{display:inline-flex;align-items:center;height:28px;padding:0 12px;border-radius:999px;
+  background:var(--sunken);color:var(--t2);font:700 12px/1 var(--f)}
+.two{display:grid;grid-template-columns:1fr auto;gap:64px;align-items:center;flex:1}
+.two-r{display:grid;grid-template-columns:auto 1fr;gap:64px;align-items:center;flex:1}
+.list{display:flex;flex-direction:column;gap:11px}
+.row-item{display:flex;align-items:flex-start;gap:12px;padding:14px 16px;border-radius:14px;
+  background:var(--surf);box-shadow:inset 0 0 0 1.5px var(--line)}
+.row-item i{width:8px;height:8px;border-radius:50%;background:var(--a);flex:none;margin-top:7px}
+.row-item b{font:800 15px/1.3 var(--f)}
+.row-item p{font:500 13px/1.4 var(--f);color:var(--t2);margin-top:3px}
+
+/* idea rail */
+.rail{position:absolute;left:96px;top:74px;display:flex;gap:10px}
+.rail b{height:34px;padding:0 15px;border-radius:999px;display:inline-flex;align-items:center;
+  font:800 13px/1 var(--f);background:var(--sunken);color:var(--t3)}
+.rail b.on{background:var(--a);color:#fff}
+</style>
+</head>
+<body>
+<div id="err" style="position:fixed;z-index:999;top:0;left:0;right:0;background:#FCE7E5;
+  color:#8E201B;font:600 13px/1.5 monospace;padding:12px;display:none;white-space:pre-wrap"></div>
+<div id="stage"></div>
+<div class="hint">← → Space · F fullscreen</div>
+
+<script>
+onerror=function(m,s,l,c,e){var d=document.getElementById('err');d.style.display='block';
+  d.textContent='ALDAA '+(e&&e.stack||m);};
+
+var P=function(n){return n.toLocaleString('en-US')+'₮';};
+var T=function(k,v,l){return `<div class="stat"><div class="k">${k}</div>
+  <div class="v">${v}</div><div class="d">${l}</div></div>`;};
+var RI=function(t,b){return `<div class="row-item"><i></i><div><b>${t}</b><p>${b}</p></div></div>`;};
+var NUM=function(a,b){return `<span class="mono" style="font:800 15px/1 var(--f)">${a}</span>
+  <span style="font:500 14px/1 var(--f);color:var(--t2)">&nbsp; ${b}</span>`;};
+
+/* ---------- 1. VR-GUARDIAN mock ---------- */
+var VR_DASH=`<div style="width:100%">
+ <div style="background:var(--surf);border-radius:20px;box-shadow:0 18px 46px rgba(0,0,0,.13);
+   overflow:hidden">
+  <div style="display:flex;align-items:center;gap:12px;padding:16px 20px;border-bottom:1px solid var(--line)">
+   <span class="mark" style="width:36px;height:36px;border-radius:11px;font-size:17px">🥽</span>
+   <div><div class="pt" style="font-size:15px">vr-guardian · багшийн самбар</div>
+    <div class="ps" style="font-size:12px">8 дугаар анги · 16 headset</div></div>
+   <span class="badge" style="margin-left:auto">● LIVE</span></div>
+  <div style="padding:18px;display:grid;grid-template-columns:repeat(4,1fr);gap:11px">
+   ${['Дүрс 1','Дүрс 2','Дүрс 3','Дүрс 4','Дүрс 5','Дүрс 6','Дүрс 7','Дүрс 8'].map(function(n,i){
+     const blocked=i===3;
+     return `<div style="border-radius:14px;padding:11px;background:${blocked?'#FCE7E5':'var(--aw)'};
+       box-shadow:inset 0 0 0 1.5px ${blocked?'#F3C6C3':C_aw2()}">
+      <div style="display:flex;align-items:center;gap:7px;margin-bottom:8px">
+       <i style="width:7px;height:7px;border-radius:50%;background:${blocked?'#D0342C':'#12855F'}"></i>
+       <span style="font:800 11px/1 var(--f);color:var(--t2)">${n}</span></div>
+      <div style="height:62px;border-radius:9px;background:${blocked?'#8E201B':'#D6F5E8'};
+        display:grid;place-items:center;font-size:21px;color:${blocked?'#fff':'#0A5540'}">
+       ${blocked?'⛔':'📐'}</div>
+      <div style="margin-top:7px;font:800 10px/1.3 var(--f);color:${blocked?'#8E201B':'#0A5540'}">
+       ${blocked?'Хоригдсон хэрэгсэл':'VR хичээл'}</div></div>`;}).join('')}
+  </div>
+  <div style="margin:0 18px 18px;padding:13px 15px;border-radius:13px;background:#FEF3DC">
+   <div style="font:800 13px/1.2 var(--f);color:#9A6A06">⚠ Дүрс 3 · 2 минутын өмнө</div>
+   <div style="font:500 12px/1.3 var(--f);color:#9A6A06;margin-top:3px">
+    Зөвшөөрөгдөхгүй хэрэгсэл нээгдсэн. Автомат хаалт тавигдсан, сурагчид мэдэгдэл үзүүлсэн.</div></div>
+ </div></div>`;
+function C_aw2(){return '#A9E9D0';}
+
+/* ---------- 2. MEVI mock ---------- */
+var MEVI_UI=`<div style="width:100%;background:var(--surf);border-radius:20px;
+   box-shadow:0 18px 46px rgba(0,0,0,.13);padding:22px">
+  <div style="display:flex;align-items:center;gap:11px;margin-bottom:18px">
+   <span class="mark" style="width:36px;height:36px;border-radius:11px;font-size:17px">ᠮ</span>
+   <div><div class="pt" style="font-size:15px">МЭВИ СОРТ</div>
+    <div class="ps" style="font-size:12px">Монгол текстийг ангилах engine · 1 минутад 1,200</div></div></div>
+  <div style="background:var(--sunken);border-radius:14px;padding:16px;margin-bottom:14px">
+   <div class="cap" style="margin-bottom:8px">ОРСОН ТЕКСТ</div>
+   <div style="font:600 19px/1.45 var(--f)">
+    «Би өчигдөр 5,000₮ төлсөн гэж бодоод дахин худалдаа авч болохгүй юу?»</div></div>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:11px">
+   ${[['Тансах гэж хүсэвт','41%','#F3F1EC','#5C6563'],
+      ['Худалдааны түүх асуулт','38%','#F3F1EC','#5C6563'],
+      ['Төлбөрийн эрх эсрэг хязгаар','17%','var(--aw)','var(--a)']]
+    .map(function(r){
+     return `<div style="border-radius:13px;padding:14px;background:${r[2]};
+       box-shadow:inset 0 0 0 ${r[0].indexOf('Төлбөр')>-1?'2px':'1.5px'} ${r[3]}">
+      <div style="font:700 12px/1.3 var(--f);color:${r[0].indexOf('Төлбөр')>-1?'var(--a)':'#5C6563'}">
+       ${r[0]}</div>
+      <div class="mono" style="font:800 22px/1 var(--f);margin-top:8px;color:var(--t1)">${r[1]}</div>
+      <div style="height:5px;border-radius:5px;background:rgba(26,29,28,.10);margin-top:9px">
+       <i style="display:block;height:100%;width:${r[1]};border-radius:5px;background:var(--a)"></i></div>
+     </div>`;}).join('')}</div>
+  <div style="margin-top:16px;padding:14px;border-radius:13px;background:var(--aw)">
+   <div style="font:800 14px/1.2 var(--f);color:var(--a)">Модель үг бичихгүй. Сонголтоо хийнэ.</div>
+   <div style="font:500 12px/1.4 var(--f);color:var(--a);margin-top:4px">
+    Тиймээс худлаа гарахгүй — өгөгдсөн сонголтоос өөр зүйл бүтээх боломжгүй.</div></div></div>`;
+
+/* ---------- 3. VOICE mock ---------- */
+var VOICE_UI=`<div style="width:100%;background:var(--surf);border-radius:20px;
+   box-shadow:0 18px 46px rgba(0,0,0,.13);padding:22px">
+  <div style="display:flex;align-items:center;gap:11px;margin-bottom:18px">
+   <span class="mark" style="width:36px;height:36px;border-radius:11px;font-size:17px">🎙️</span>
+   <div><div class="pt" style="font-size:15px">Монгол хоолны дуу</div>
+    <div class="ps" style="font-size:12px">Эхээсээ буюу бүрэн сургалсан</div></div>
+   <span class="badge" style="margin-left:auto">PIPER · VITS</span></div>
+  <div style="display:flex;align-items:center;gap:16px;background:var(--aw);border-radius:14px;
+    padding:18px 20px">
+   <div style="width:46px;height:46px;border-radius:50%;background:var(--a);color:#fff;flex:none;
+     display:grid;place-items:center;font-size:19px">▶</div>
+   <div style="flex:1;display:flex;align-items:center;gap:3px;height:46px">
+    ${[8,16,26,38,20,44,32,14,40,28,18,46,34,12,24,42,20,30,16,38,10,26,20,12].map(function(h){
+     return `<i style="flex:1;height:${h}%;background:var(--a);opacity:.55;border-radius:2px"></i>`;
+    }).join('')}</div>
+   <div style="font:800 13px/1 var(--f);color:var(--a);flex:none">0:04.2</div></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px">
+   ${[['Мөрөө дурдах ёстой.','Сургалтын өгөгдөл'],
+      ['Нөхцөл ба учир дутагдал.','Эерэг сэтгэгдэл'],
+      ['Дараагийнхийгээ хэлээрэй.','Асуултын өгүүлбэр']]
+     .map(function(q){
+      return `<div style="background:var(--sunken);border-radius:12px;padding:12px 14px">
+       <div style="font:600 14px/1.3 var(--f)">${q[0]}</div>
+       <div style="font:700 11px/1 var(--f);color:var(--a);margin-top:7px">${q[1]}</div></div>`;}).join('')}</div>
+  <div style="margin-top:16px;padding:13px 15px;border-radius:13px;background:#FEF3DC">
+   <div style="font:800 13px/1.2 var(--f);color:#9A6A06">Яагаад энэ нь хэцүү байсан бэ?</div>
+   <div style="font:500 12px/1.4 var(--f);color:#9A6A06;margin-top:3px">
+    espeak-ng-д монгол дуу байхгүй. Тиймээс үсгийн тусгаар зориулалт бүхий
+    фонем дүрс зохион байгуулж, VITS-ийг эхнээс нь сургав.</div></div></div>`;
+
+/* ---------- 4. CARDS mock ---------- */
+var SUITS=[['heart','♥','#D0342C'],['spade','♠','#1A1D1C'],
+           ['club','♣','#1A1D1C'],['diamond','♦','#D0342C']];
+function cardFace(rank,suit,ix){
+  return `<div style="width:118px;height:168px;border-radius:12px;background:#fff;
+    box-shadow:0 6px 18px rgba(0,0,0,.16),inset 0 0 0 1px #E6E3DC;
+    padding:9px 10px;display:flex;flex-direction:column;position:relative;overflow:hidden">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start">
+      <span style="font:800 15px/1 var(--f);color:${suit[2]}">${rank}</span>
+      <span style="font:800 13px/1 var(--f);color:${suit[2]}">${suit[1]}</span></div>
+    ${ix?`<div style="flex:1;margin:6px 0;border-radius:7px;overflow:hidden;
+       background:#F3F1EC;display:grid;place-items:center">
+       <img src="https://images.unsplash.com/${ix}?w=200&q=70&auto=format&fit=crop"
+        style="width:100%;height:100%;object-fit:cover" alt=""></div>`
+      :`<div style="flex:1;margin:6px 0;display:grid;place-items:center">
+        <span style="font-size:34px;color:${suit[2]}">${suit[1]}</span></div>`}
+    <div style="font:800 15px/1 var(--f);color:${suit[2]};transform:rotate(180deg);
+      align-self:flex-end">${rank}</div></div>`;
+}
+var CARDS_UI=`<div style="width:100%;display:flex;justify-content:center">
+ <div style="display:flex;gap:14px;transform:rotate(-3deg)">
+  ${cardFace('K',SUITS[1],null)}${cardFace('Q',SUITS[0],'photo-1506905925346-21bda4d32df4')}
+  ${cardFace('J',SUITS[2],null)}${cardFace('10',SUITS[3],null)}${cardFace('A',SUITS[0],null)}</div></div>`;
+
+/* ================= SLIDES ================= */
+var S=[];
+function slide(accent,cls,inner){S.push({a:accent,cls:cls||'',inner:inner});}
+
+var VR={a:'#0E6B4F',a2:'#6BD4AE',a3:'#052E22',aw:'#EEFBF5',aw2:'#A9E9D0'};
+var MV={a:'#7A3EC8',a2:'#C7A6F0',a3:'#2A1055',aw:'#F3EEFC',aw2:'#D9C9F5'};
+var VO={a:'#C2410C',a2:'#FDBA74',a3:'#431407',aw:'#FEF0E6',aw2:'#FAD3B0'};
+var CD={a:'#B3123C',a2:'#F5A3B8',a3:'#3A0616',aw:'#FCECEF',aw2:'#F3C6D1'};
+
+/* intro */
+slide(VR,'dark',`<div class="center"><div style="max-width:1120px">
+ <div class="mark" style="margin:0 auto 28px">✦</div>
+ <div class="eyebrow">БҮТЭЭГДСЭН, ТУШНЭЭД</div>
+ <h1 class="big">Дөрвөн бүтээгдэхүүн.<br>Гурван жилийн хөрөнгө оруулалт.</h1>
+ <p class="lede" style="margin:26px auto 0;font-size:22px">
+  Эдгээрийг сурагч гэж суралцсан зүйлээс биш, өдөр бүр гартаа орсон асуудлаас
+  гаргаж байгуулсан. Дөрвүүлээ бүгд ажиллаж байна.</p>
+ <div class="tiles c4" style="margin-top:46px">
+  ${[['🥽','vr-guardian','VR хяналт'],['ᠮ','МЭВИ','Монгол AI'],
+     ['🎙️','Mongolian Voice','Монгол дуу'],['🂡','Нууц тоглогч','55 ширхэг карт']]
+   .map(function(x,i){return `<div class="feat panel" style="text-align:center;padding:24px;
+     background:rgba(255,255,255,.08);box-shadow:none">
+     <div style="font-size:30px">${x[0]}</div>
+     <div style="font:800 17px/1.2 var(--f);margin-top:10px;color:#fff">${x[1]}</div>
+     <div style="font:500 13px/1.3 var(--f);margin-top:4px;color:rgba(255,255,255,.6)">${x[2]}</div>
+     </div>`;}).join('')}</div></div></div>`);
+
+/* ---- vr-guardian ---- */
+slide(VR,'',`<div class="eyebrow">БҮТЭЭГДЭХҮҮН 01</div>
+ <div class="two">
+  <div><h2 class="big">Сурагч VR дотор юу<br>нээж байгааг<br>багш хардаггүй байна.</h2>
+   <p class="lede" style="margin-top:22px">Одоо VR headset дотор яг юу үзэж байгааг
+    багш шууд харах боломжгүй. Хүүхэд хэтэрсэн контент руу гарах эрсдэл байна,
+    харин хяналтын арга байхгүй.</p>
+   <div class="list" style="margin-top:30px;max-width:520px">
+    ${RI('Багш бодит цагийн дүрсээр харна','Сурагчийн headset доторх хэрэгслийг шууд хэрэглэнэ')}
+    ${RI('Хоригдсон хэрэгсэл автоматаар хаагдана','Нээгдэх мөчид хаалт тавигдаж, сурагчид мэдэгдэл үзүүлнэ')}
+    ${RI('Багшийн тайлан','Анги бүрийн ашиглалт, хоригдсон хэрэгслийн бүртгэл')}</div>
+   <div style="margin-top:26px;display:flex;gap:10px;flex-wrap:wrap">
+    <span class="badge">Meta Quest 3S</span><span class="pill">Демо ажиллаж байна</span>
+    <span class="pill">Анги бүрээр хяналт</span></div></div>
+  <div>${VR_DASH}</div></div>`);
+
+slide(VR,'',`<div class="two-r">
+ <div style="width:730px;flex:none">${VR_DASH}</div>
+  <div><div class="eyebrow">БОТОД БОЛСОН</div>
+   <h2 class="big">Ажиллаж байгаа,<br>хэрэглэгчтэй<br>гэдгийг баталж чадна.</h2>
+   <div class="tiles c3" style="margin-top:28px">
+    ${T('HEADSET','16','Амжилт Интернэт Яам · 8 дугаар анги')}
+    ${T('БЭЛТГЭСЭН','2026.09','Демо бүрэн ажиллаж байна')}</div>
+   <div class="tiles c2" style="margin-top:16px">
+    ${T('БЭЛТГЭХ ХУГАЦАА','5 мин','Нэг олонлогийн үед хаагдах эсэхийг шалгана')}</div>
+   <div style="margin-top:26px;padding:16px 18px;border-radius:15px;background:var(--aw);
+     max-width:520px">
+    <div style="font:800 15px/1.3 var(--f);color:var(--a)">Хуваарийн талаар</div>
+    <div style="font:500 14px/1.5 var(--f);color:var(--a);margin-top:5px">
+     Бүтээгдэхүүн дуусахад өөрийн сургууланд үнэ төлөхгүйгээр өгнө.
+     Анхны зорилго нь сургуулд ашиглагдах бүрэлдэхүүн болох.</div></div></div></div>`);
+
+/* ---- MEVI ---- */
+slide(MV,'',`<div class="two">
+  <div><div class="eyebrow">БҮТЭЭГДЭХҮҮН 02</div>
+   <h2 class="big">Монгол текст<br>машин уншдаггүй.<br>Тэр нь бодит байдал.</h2>
+   <p class="lede" style="margin-top:22px">Өнөөгийн том хэлтийн загварууд монголыг зөв сайн
+    ойлгодоггүй. Харин «Хэрэв би 5000 төгрөг төлсөн бол дахин авах боломжтой юу?» гэсэн
+    өгүүлбэрийг ч ойлгож чадахгүй.</p>
+   <div class="list" style="margin-top:30px;max-width:520px">
+    ${RI('Лайа — монгол engine','mmBERT суурь дээр өөрийн жинг сургасан')}
+    ${RI('МЭВИ Ухаа','Асуулт хариулгах харилцлагааны систем')}
+    ${RI('МЭВИ СОРТ','Баримт, өгүүлбэр, зэрэг ангилах — секунд тутам 1,200 ширхэг')}</div>
+   <div style="margin-top:24px;font:500 14px/1.5 var(--f);color:var(--t2);max-width:500px">
+    Энэ engine ашигласан бүх бүтээгдэхүүн дээрх тоо нэг байна. Эхний ажил нь энэ.</div></div>
+  <div>${MEVI_UI}</div></div>`);
+
+slide(MV,'',`<div class="two-r">
+ <div style="width:660px;flex:none">${MEVI_UI}</div>
+ <div><div class="eyebrow">ЗӨРХӨЛ ТОДРУУЛСАН</div>
+  <h2 class="big">Суурь модел<br>ойлгодог боловч<br>батлах чадваргүй.</h2>
+  <p class="lede" style="margin-top:20px">Суурь mmBERT нь монгол утгыг ойлгодог —
+   гэхдээ 100 хариулт дундаас зөвхөн 33-ыг сонгоно. Өөрийн жин тавьсны дараа 90 болно.</p>
+  <div class="tiles c2" style="margin-top:26px;max-width:520px">
+   ${T('СУУРЬ МОДЕЛЬ','0.325','Зөв хариултын магадлал · 400 туршилт')}
+   ${T('МАЙДСАН МОДЕЛЬ','0.9025','2.8 дахин өсөлт')}</div>
+  <div class="tiles c2" style="margin-top:14px;max-width:520px">
+   ${T('ТЕСТИЙН ТОГТМОЛ','0.8984','Суурь загварын 0.3035-аас 2.96 дахин')}
+   ${T('НИЙТ САНАГ','0.0587','Магадлал бодит хариулттай нийцэж байгаа эсэх')}</div>
+  <div style="margin-top:22px;padding:15px 17px;border-radius:15px;background:var(--aw);max-width:520px">
+   <div style="font:800 14px/1.3 var(--f);color:var(--a)">Хамгийн чухал шийд</div>
+   <div style="font:500 13px/1.5 var(--f);color:var(--a);margin-top:4px">
+    Модель үг бичихгүй — өгөгдсөн сонголтоос өөр зүйл бүтээхгүй.
+    Тиймээс худлаа гарах боломжгүй.</div></div></div></div>`);
+
+/* ---- Voice ---- */
+slide(VO,'',`<div class="two">
+ <div><div class="eyebrow">БҮТЭЭГДЭХҮҮН 03</div>
+  <h2 class="big">Компьютер<br>монгол ярих<br>чаддаггүй.</h2>
+  <p class="lede" style="margin-top:22px">espeak-ng, Google, зөвхөн харин систем дотор
+   монгол дуу байхгүй. Иймээс дуу үүсгэх, ярихыг нь таньж авах хоёул
+   гадаад хэрэгсэл рүү татдаг.</p>
+   <div class="list" style="margin-top:30px;max-width:520px">
+    ${RI('26.2 цагийн бичлэг','Өөрийн дуугаар цуглуулсан 17,036 хэсэг')}
+    ${RI('Эхнээс нь сургасан','Даантай загвар ашиглан VITS дууг бүрэн сургав')}
+    ${RI('Фонем дүрс зохион байгуулсан','espeak-д монгол дуу үгүй тул үсгийн тусгаарлалтын дүрс гаргав')}</div>
+   <div style="margin-top:24px;display:flex;gap:10px;flex-wrap:wrap">
+    <span class="badge">PIPER · VITS</span><span class="pill">TTS + STT</span>
+    <span class="pill">FastAPI сервер</span></div></div>
+ <div>${VOICE_UI}</div></div>`);
+
+slide(VO,'',`<div class="two-r">
+ <div style="width:640px;flex:none">${VOICE_UI}</div>
+ <div><div class="eyebrow">ЯГААГААД ЭНЭ НЬ ХЭЦҮҮ БАЙСАН</div>
+  <h2 class="big">Алхам бүрт<br>нөхцөл таарч байна.</h2>
+  <div class="list" style="margin-top:28px;max-width:520px">
+   ${RI('Espeak-д монгол дуу алга','Бүрэн дуу байх ёстой — өөрөө дүрс зохиов')}
+   ${RI('Нөхцөл ба учир дутагдал','Нэг уншилт бүр дээр эхний алдаа гаргаж байвэл бүх сургалт устдаг байсан')}
+   ${RI('Бүх өгөгдөл нэг хүний дуу','Өөр хүний дуу төдийгүй — үр дүн тогтворгүй байлаа')}</div>
+  <div class="tiles c3" style="margin-top:26px;max-width:520px">
+   ${T('ХУГАЦАА','26.2 цаг','Бичлэг цуглуулсан')}
+   ${T('ХЭСЭГ','17,036','Цувааны бичлэг')}
+   ${T('ПАРАМЕТР','70.4M','VITS загварын жин')}</div>
+  <div style="margin-top:22px;padding:15px 17px;border-radius:15px;background:var(--aw);max-width:520px">
+   <div style="font:800 14px/1.3 var(--f);color:var(--a)">Хэрэглэх газар</div>
+   <div style="font:500 13px/1.5 var(--f);color:var(--a);margin-top:4px">
+    Сургуулийн сэргээлт, зар санхүүгийн мэдэгдэл, хүүхдэд өгөх дуут агуулга —
+    бүгд монгол дуугаар.</div></div></div></div>`);
+
+/* ---- Cards ---- */
+slide(CD,'',`<div class="two">
+ <div><div class="eyebrow">БҮТЭЭГДЭХҮҮН 04</div>
+  <h2 class="big">Бидний<br>картын хөрөн<br>өөрийн шуудмыг<br>гэрэлдүүлэхгүй.</h2>
+  <p class="lede" style="margin-top:22px">Ихэнх орны тоглогч карт нь эсвэл зохиомлоор
+   хэвлэгдсэн. Монгол хүүхдэд өөрийн түүхтэй, өөрийн хэлтэй карт хэрэгтэй.</p>
+   <div class="list" style="margin-top:30px;max-width:520px">
+    ${RI('55 ширхэг бүрэн гот','52 + 2 хамгийн том + 1 нөөц карт')}
+    ${RI('Дотоод зураг бүрэн','Дотоод карт бүрд түүхтэй хүний дүрс')}
+    ${RI('Хэвлэлд бэлэн','Бүх файл бэлтгэсэн, зураг, реза')}</div>
+   <div style="margin-top:24px;display:flex;gap:10px;flex-wrap:wrap">
+    <span class="badge">B2B БӨӨН ХУДАЛДАА</span><span class="pill">Анхины баяр · сургуулийн тэмдэмлэл</span></div></div>
+ <div>${CARDS_UI}</div></div>`);
+
+slide(CD,'',`<div class="two-r">
+ <div style="flex:none">${CARDS_UI}</div>
+ <div><div class="eyebrow">ЗАХ ЗАРЫН ТОГТМОЛ</div>
+  <h2 class="big">Бөөнлөөд<br>хүргэлт дээр<br>биш, бөөний дээр.</h2>
+  <p class="lede" style="margin-top:20px">Зайлшгүй сувч, зурааны дэлгүүр биш.
+   Байгууллага, тэмдэмлэл хийх түрээнсэн худалдаанаар авъя — улмаар 1 ширхэг
+   4,500₮-аас дээш үнэтэй.</p>
+  <div class="tiles c3" style="margin-top:26px;max-width:520px">
+   ${T('НЭГ ДАХЬ','55','Бүрэн гот бэлэн')}
+   ${T('ЗАХ ЗАРЫН ТОГТМОЛ','1.4×','Үйлдвэрлийн үнэн өртгөөс')}</div>
+  <div class="list" style="margin-top:22px;max-width:520px">
+   ${RI('Сургуули, үйлдвэрлэл','Цагаан сар, Наадам зэрэгт зориулсан гэр бүр')}
+   ${RI('Хэвлэлийн урьдчилгаа','30–50% төлбөр, үлдсэн нь хүргэлтийн үед')}</div>
+  <div style="margin-top:20px;padding:15px 17px;border-radius:15px;background:var(--aw);max-width:520px">
+   <div style="font:800 14px/1.3 var(--f);color:var(--a)">Анхаарах зүйл</div>
+   <div style="font:500 13px/1.5 var(--f);color:var(--a);margin-top:4px">
+    Бүх эрх зүүл дээр нэг хүн бий. Анхны орлогоос өмнө
+    гурван гургуулын ийн гэрээг бичиж, тэдгээрийн нэгэнд
+    хяналт тавих шаардлагатай.</div></div></div></div>`);
+
+/* close */
+slide(VR,'dark',`<div class="center"><div style="max-width:1080px">
+ <div class="eyebrow">НИЙТ</div>
+ <h1 class="big">Дөрвөн бүтээгдэхүүн.<br>Нэг хүн байгуулсан.</h1>
+ <p class="lede" style="margin:26px auto 0;font-size:22px">
+  VR хяналт, монгол хиймэл оюун, монгол дуу, нууц тоглогч —
+  дөрвүүлээ өөр өөр асуудлыг хасаж байгаа боловч нэг шуудмын
+  цаана байна: бидний хэл, бидний сургууль, бидний өдөр тутмын амьдрал.</p>
+ <div class="tiles c4" style="margin-top:44px">
+  ${[['4','Бүрэн ажиллаж байгаа бүтээгдэхүүн'],['1,240','Өгөгдлийн мөр'],
+     ['17,036','Өөрийн бичлэгийн хэсэг'],['1','Дэлгэцээс илэрхий']]
+   .map(function(x){return `<div class="panel" style="text-align:center;padding:22px;
+     background:rgba(255,255,255,.08);box-shadow:none">
+     <div class="mono" style="font:800 32px/1 var(--f);color:#fff">${x[0]}</div>
+     <div style="font:500 12px/1.3 var(--f);margin-top:7px;color:rgba(255,255,255,.6)">${x[1]}</div>
+     </div>`;}).join('')}</div></div></div>`);
+
+/* ---------- render ---------- */
+var names=['Нүүр','VR хяналт','VR бэлэн','МЭВИ','МЭВИ тоо','Дуу','Дуу бэрхүү',
+           'Карт','Карт борлуулалт','Хаалт'];
+var stage=document.getElementById('stage');
+stage.innerHTML=S.map(function(s,i){
+  var v=s.a;  /* set the per-slide accent from the palette object */
+  return '<section class="slide '+s.cls+'" data-i="'+i+'" style="--a:'+v.a+';--a2:'+v.a2+
+   ';--a3:'+v.a3+';--aw:'+v.aw+';--aw2:'+v.aw2+'">'+s.inner+
+   '<div class="bar"><span>'+names[i]+'</span><span class="dots">'+
+   S.map(function(_,j){return '<i data-j="'+j+'" class="'+(j===i?'cur':'')+'"></i>';}).join('')+
+   '</span><span>'+String(i+1).padStart(2,'0')+' / '+String(S.length).padStart(2,'0')+
+   '</span></div></section>';}).join('');
+
+var sl=[].slice.call(document.querySelectorAll('.slide'));
+var idx=0;
+function show(n){
+  idx=Math.max(0,Math.min(S.length-1,n));
+  sl.forEach(function(s,j){s.classList.toggle('on',j===idx);});
+  [].slice.call(document.querySelectorAll('.dots i')).forEach(function(d,j){
+    d.classList.toggle('cur',j===idx);});
+  document.body.classList.add('hide');
+}
+function fit(){var s=Math.min(innerWidth/1920,innerHeight/1080);
+  stage.style.transform='translate(-50%,-50%) scale('+s+')';}
+addEventListener('resize',fit);
+addEventListener('hashchange',function(){
+  var n=Math.min(S.length,Math.max(1,+location.hash.slice(1)||1))-1;
+  if(n!==idx)show(n);});
+addEventListener('keydown',function(e){
+  if(['ArrowRight','ArrowDown',' ','PageDown'].indexOf(e.key)>-1){e.preventDefault();show(idx+1);}
+  if(['ArrowLeft','ArrowUp','PageUp'].indexOf(e.key)>-1){e.preventDefault();show(idx-1);}
+  if(e.key==='Home')show(0);
+  if(e.key==='End')show(S.length-1);
+  if(e.key.toLowerCase()==='f'){document.fullscreenElement?
+    document.exitFullscreen():document.documentElement.requestFullscreen();}
+});
+addEventListener('click',function(e){
+  var d=e.target.closest('[data-j]');
+  if(d)return show(+d.dataset.j);
+  show(e.clientX<innerWidth*0.28?idx-1:idx+1);});
+fit();
+show(location.hash?Math.min(S.length,Math.max(1,+location.hash.slice(1)||1))-1:0);
+</script>
+</body>
+</html>

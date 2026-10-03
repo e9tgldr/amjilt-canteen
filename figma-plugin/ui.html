@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font: 500 13px/1.5 -apple-system, "Segoe UI", system-ui, sans-serif;
+    color: #1A1D1C; background: #FAF9F6; padding: 24px;
+  }
+  .mark { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+  .logo {
+    width: 34px; height: 34px; border-radius: 10px; flex: none;
+    background: linear-gradient(160deg, #0E6B4F, #07422F);
+    display: grid; place-items: center; color: #fff; font-size: 17px;
+  }
+  h1 { font-size: 16px; font-weight: 800; letter-spacing: -.2px; }
+  p.sub { color: #8E9795; font-size: 12px; margin-bottom: 22px; }
+  .row { display: flex; gap: 10px; align-items: flex-start;
+         padding: 11px 0; border-bottom: 1px solid #E6E3DC; font-size: 12px; }
+  .row:last-child { border-bottom: 0; }
+  .dot { width: 7px; height: 7px; border-radius: 50%; background: #D5D1C7; flex: none; margin-top: 5px; }
+  .dot.on { background: #0E6B4F; }
+  .bar { height: 6px; border-radius: 6px; background: #E6E3DC; overflow: hidden; margin: 18px 0 6px; }
+  .bar > i { display: block; height: 100%; background: #0E6B4F; width: 0; transition: width .3s ease; }
+  .pct { font-size: 11px; color: #8E9795; }
+  button {
+    width: 100%; height: 46px; margin-top: 22px; border: 0; border-radius: 14px;
+    background: #0E6B4F; color: #fff; font: 800 14px/1 inherit; cursor: pointer;
+  }
+  button:disabled { opacity: .45; }
+  button.ghost { background: #EEFBF5; color: #0A5540; margin-top: 10px; }
+  .warn {
+    margin-top: 18px; padding: 12px 14px; border-radius: 12px;
+    background: #FFEDE1; color: #B84A0C; font-size: 12px; line-height: 1.5;
+  }
+  code { background: #F3F1EC; padding: 1px 5px; border-radius: 4px; font-size: 11px; }
+</style>
+</head>
+<body>
+  <div class="mark">
+    <div class="logo">🍜</div>
+    <h1>Amjilt Canteen</h1>
+  </div>
+  <p class="sub">Бүтээгдэхүүний дизайн систем бүүрдүүлнэ</p>
+
+  <div id="list"></div>
+  <div class="bar"><i id="fill"></i></div>
+  <div class="pct" id="pct">Дээрх файлд ажиллаж байна…</div>
+
+  <button id="go" disabled>Үүсгэх</button>
+  <button class="ghost" id="close" style="display:none">Хаах</button>
+
+  <div class="warn" id="warn" style="display:none">
+    Энэ plugin зөвхөн <b>Design file</b> дээр ажиллана.<br>
+    Slides эсвэл FigJam файл биш гэдгийг шалгаарай.
+  </div>
+
+<script>
+  const STEPS = [
+    'Фонт ачаалж байна…',
+    'Токен бүртгэж байна…',
+    'Design System хуудас…',
+    'Компонентүүд…',
+    'Дэлгэцүүд…',
+    'Prototype…',
+  ];
+  const list = document.getElementById('list');
+  list.innerHTML = STEPS.map(s =>
+    `<div class="row"><span class="dot"></span><span>${s}</span></div>`).join('');
+  const dots = [...list.querySelectorAll('.dot')];
+
+  onmessage = (e) => {
+    const d = e.data.pluginMessage; if (!d) return;
+    document.getElementById('fill').style.width = d.pct + '%';
+    document.getElementById('pct').textContent = d.t;
+    let done = 0;
+    for (let i = 0; i < dots.length; i++) {
+      const s = STEPS[i];
+      if (d.t === s || (d.pct >= 100) ||
+          (d.pct >= [4, 8, 18, 34, 60, 88][i])) { dots[i].classList.add('on'); done = i + 1; }
+    }
+    if (d.pct >= 100) {
+      document.getElementById('go').style.display = 'none';
+      document.getElementById('close').style.display = 'block';
+    }
+  };
+
+  document.getElementById('go').onclick = () => {
+    parent.postMessage({ pluginMessage: { type: 'build' } }, '*');
+    document.getElementById('go').disabled = true;
+    document.getElementById('go').textContent = 'Бүтээж байна…';
+  };
+  document.getElementById('close').onclick = () =>
+    parent.postMessage({ pluginMessage: { type: 'close' } }, '*');
+</script>
+</body>
+</html>

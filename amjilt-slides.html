@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="mn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Amjilt Canteen</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --b900:#052E22;--b800:#07422F;--b700:#0A5540;--b600:#0E6B4F;--b500:#12855F;--b400:#3AA47E;
+  --b300:#6BD4AE;--b200:#A9E9D0;--b100:#D6F5E8;--b050:#EEFBF5;
+  --a700:#B84A0C;--a600:#E86A16;--a500:#FF7A29;--a300:#FFB781;--a100:#FFEDE1;
+  --bg:#FAF9F6;--surf:#fff;--sunken:#F3F1EC;--line:#E6E3DC;--line2:#D5D1C7;
+  --t1:#1A1D1C;--t2:#5C6563;--t3:#8E9795;
+  --ok:#12855F;--warn:#E8A317;--bad:#D0342C;
+  --f:"Nunito",system-ui,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font:500 16px/1.5 var(--f);color:var(--t1);background:#20262B;overflow:hidden;
+     -webkit-font-smoothing:antialiased;font-variant-numeric:tabular-nums}
+#stage{position:absolute;top:50%;left:50%;width:1920px;height:1080px;
+       transform-origin:center center;transform:translate(-50%,-50%)}
+.slide{position:absolute;inset:0;background:var(--bg);display:none;
+       flex-direction:column;padding:76px 96px;overflow:hidden}
+.slide.on{display:flex}
+.slide.dark{background:
+  radial-gradient(1100px 700px at 18% -10%,rgba(107,212,174,.20),transparent 62%),
+  linear-gradient(155deg,#07422F,#052E22);color:#fff}
+
+/* ---- chrome ---- */
+.bar{position:absolute;left:0;right:0;bottom:30px;display:flex;align-items:center;
+     justify-content:space-between;padding:0 96px;font:700 13px/1 var(--f);color:var(--t3)}
+.dark .bar{color:rgba(255,255,255,.45)}
+.dots{display:flex;gap:7px}
+.dots i{width:7px;height:7px;border-radius:7px;background:var(--line2);cursor:pointer;transition:.2s}
+.slide.on .dots i.cur{width:26px;background:var(--b600)}
+.dark .slide.on .dots i.cur,.dark .dots i.cur{background:var(--b300)}
+.dots i:hover{background:var(--a500)}
+.hint{position:fixed;bottom:14px;left:50%;transform:translateX(-50%);z-index:99;
+      font:600 12px/1 var(--f);color:rgba(255,255,255,.35);pointer-events:none;transition:opacity .4s}
+.hide .hint{opacity:0}
+
+/* ---- type ---- */
+h1.big{font:800 78px/1.05 var(--f);letter-spacing:-2.6px}
+h2.big{font:800 56px/1.08 var(--f);letter-spacing:-1.8px}
+h3.big{font:800 34px/1.15 var(--f);letter-spacing:-.9px}
+.lede{font:500 21px/1.5 var(--f);color:var(--t2);max-width:64ch}
+.dark .lede{color:rgba(255,255,255,.72)}
+.eyebrow{font:800 13px/1 var(--f);letter-spacing:2.4px;color:var(--a500);margin-bottom:22px}
+.kicker{display:inline-flex;align-items:center;gap:9px;height:38px;padding:0 17px;
+        border-radius:999px;background:var(--b050);color:var(--b700);
+        font:800 14px/1 var(--f)}
+.mono{font-variant-numeric:tabular-nums}
+.mark{width:56px;height:56px;border-radius:16px;background:linear-gradient(160deg,var(--b600),var(--b800));
+      display:grid;place-items:center;box-shadow:0 8px 22px rgba(14,107,79,.34)}
+
+/* ---- phone ---- */
+.phone{width:390px;height:844px;border-radius:46px;border:10px solid #14171A;background:var(--bg);
+      overflow:hidden;display:flex;flex-direction:column;flex:none;
+      box-shadow:0 30px 70px rgba(10,25,20,.20)}
+.sbar{height:42px;display:flex;align-items:center;justify-content:space-between;
+      padding:0 22px;font:800 12px/1 var(--f);flex:none}
+.pbody{flex:1;padding:6px 20px;display:flex;flex-direction:column;gap:14px;overflow:hidden}
+.pnav{height:70px;display:grid;grid-template-columns:repeat(5,1fr);flex:none;
+      background:rgba(255,255,255,.96);border-top:1px solid var(--line)}
+.pnav div{display:flex;flex-direction:column;align-items:center;justify-content:center;
+          gap:5px;font:700 10px/1 var(--f);color:var(--t3)}
+.pnav div.on{color:var(--b600);font-weight:800}
+.pnav i{width:20px;height:20px;border-radius:7px;background:currentColor;opacity:.85}
+.pnav i.sm{width:17px;height:17px}
+.pnav .pill{width:20px;height:3px;border-radius:3px;background:var(--b300)}
+
+.ttl{font:800 24px/1.2 var(--f);letter-spacing:-.4px}
+.sml{font:500 13px/1.4 var(--f);color:var(--t2)}
+.lbl{font:700 11px/1 var(--f);letter-spacing:.4px;color:var(--t3)}
+.money{font:800 26px/1 var(--f);letter-spacing:-.5px}
+
+/* wallet card */
+.wc{border-radius:22px;padding:20px;color:#fff;
+    background:radial-gradient(120% 100% at 85% 0%,rgba(107,212,174,.35),transparent 55%),
+               linear-gradient(150deg,var(--b700),var(--b900));
+    box-shadow:0 10px 26px rgba(14,107,79,.30)}
+.wc .amt{font:800 34px/1 var(--f);letter-spacing:-.8px;margin:6px 0 14px}
+.wc .sm{color:rgba(255,255,255,.68)}
+
+/* queue banner */
+.qb{border-radius:22px;padding:20px;background:var(--b050);box-shadow:inset 0 0 0 2px var(--b200)}
+.qb h4{font:800 19px/1.25 var(--f);color:var(--b800);letter-spacing:-.2px;max-width:210px}
+.cta{display:inline-flex;align-items:center;height:44px;padding:0 20px;border-radius:14px;
+     background:var(--b600);color:#fff;font:800 15px/1 var(--f);box-shadow:0 6px 16px rgba(14,107,79,.28)}
+
+/* slot */
+.slot{border-radius:18px;padding:12px 15px;background:var(--surf);box-shadow:inset 0 0 0 2px var(--line);
+      display:flex;align-items:center;gap:11px}
+.slot .d{width:38px;height:38px;border-radius:50%;background:var(--sunken);flex:none;
+         display:grid;place-items:center;color:var(--t3);font:800 15px/1 var(--f)}
+.slot .tm{font:800 17px/1 var(--f);letter-spacing:-.3px}
+.slot .ms{font:500 12px/1.3 var(--f);color:var(--t2);margin-top:3px}
+.slot .bd{margin-left:auto;height:28px;padding:0 11px;border-radius:999px;background:var(--b050);
+          color:var(--b600);font:800 12px/28px var(--f);white-space:nowrap}
+.slot.al{box-shadow:inset 0 0 0 2px var(--a300)}
+.slot.al .bd{background:var(--a100);color:var(--a700)}
+.slot.al .d{background:var(--a100);color:var(--a600)}
+.slot.sel{background:var(--b050);box-shadow:inset 0 0 0 2.5px var(--b600)}
+.slot.sel .d{background:var(--b600);color:#fff}
+.slot.sel .bd{background:var(--b600);color:#fff}
+.slot.full{opacity:.55}
+.slot.full .bd{background:#FCE7E5;color:var(--bad)}
+
+/* food card */
+.fc{width:190px;flex:none;border-radius:18px;background:var(--surf);overflow:hidden;
+    box-shadow:0 1px 3px rgba(26,29,28,.06)}
+.fc .ph{aspect-ratio:4/3;position:relative;background:var(--b050)}
+.fc .ph img{width:100%;height:100%;object-fit:cover}
+.fc .b{padding:11px}
+.fc .n{font:700 14px/1.25 var(--f);letter-spacing:-.2px}
+.fc .m{display:flex;align-items:center;gap:6px;margin-top:5px}
+.fc .p{font:800 14px/1 var(--f)}
+.fc .r{font:700 11px/1 var(--f);color:var(--a600)}
+.tag{position:absolute;left:7px;top:7px;height:22px;padding:0 8px;border-radius:999px;
+     background:var(--a500);color:#fff;font:800 10px/22px var(--f)}
+.tag.f{background:var(--b600)}
+.hrt{position:absolute;right:7px;top:7px;width:30px;height:30px;border-radius:50%;
+     background:rgba(255,255,255,.92);display:grid;place-items:center;color:var(--bad);font-size:14px}
+.add{position:absolute;right:10px;bottom:-16px;width:40px;height:40px;border-radius:50%;
+     background:var(--b600);color:#fff;display:grid;place-items:center;font:800 20px/1 var(--f);
+     box-shadow:0 5px 14px rgba(14,107,79,.34)}
+.rail{display:flex;gap:12px}
+
+/* steps / timeline */
+.tl{display:flex;gap:11px;align-items:flex-start}
+.tl .o{width:40px;height:40px;border-radius:50%;flex:none;display:grid;place-items:center;
+       box-shadow:inset 0 0 0 2px var(--line);color:var(--t3);font:800 15px/1 var(--f)}
+.tl .d{background:var(--b300);color:var(--b900);box-shadow:none}
+.tl .n{background:var(--b600);color:#fff;box-shadow:none}
+
+/* big stat */
+.stat{background:var(--surf);border-radius:22px;padding:26px;box-shadow:0 1px 3px rgba(26,29,28,.05)}
+.stat .k{font:700 11px/1 var(--f);letter-spacing:.6px;text-transform:uppercase;color:var(--t3)}
+.stat .v{font:800 44px/1 var(--f);letter-spacing:-1.6px;margin-top:10px}
+.stat .d{font:500 14px/1.4 var(--f);color:var(--t2);margin-top:8px}
+.tiles{display:grid;gap:20px}
+.tiles.c4{grid-template-columns:repeat(4,1fr)}
+.tiles.c3{grid-template-columns:repeat(3,1fr)}
+.tiles.c2{grid-template-columns:repeat(2,1fr)}
+
+/* console mock */
+.console{background:var(--bg);border-radius:22px;overflow:hidden;box-shadow:0 18px 50px rgba(10,25,20,.16);
+        display:flex;flex-direction:column}
+.chrome{height:40px;background:var(--surf);border-bottom:1px solid var(--line);
+        display:flex;align-items:center;gap:9px;padding:0 16px;flex:none}
+.chrome .d{width:9px;height:9px;border-radius:50%;background:var(--line2)}
+.chrome .u{flex:1;height:22px;border-radius:999px;background:var(--sunken);
+           font:700 10px/22px var(--f);color:var(--t3);padding:0 11px}
+.cbody{flex:1;padding:22px;display:flex;flex-direction:column;gap:18px;overflow:hidden}
+.cnav{display:flex;gap:3px;background:var(--surf);padding:3px;border-radius:12px;box-shadow:0 1px 3px rgba(26,29,28,.07)}
+.cnav b{font:800 12px/1 var(--f);padding:9px 13px;border-radius:9px;color:var(--t2)}
+.cnav b.on{background:var(--b050);color:var(--b700)}
+.panel{background:var(--surf);border-radius:18px;padding:20px;box-shadow:0 1px 3px rgba(26,29,28,.05)}
+.pt{font:800 16px/1.2 var(--f);letter-spacing:-.2px}
+.ps{font:500 12px/1.3 var(--f);color:var(--t2);margin-top:3px}
+
+/* kitchen columns */
+.kb{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.kbc{background:var(--sunken);border-radius:16px;padding:10px;display:flex;flex-direction:column;gap:8px}
+.kbc h5{font:800 11px/1 var(--f);color:var(--t2);display:flex;justify-content:space-between;
+        padding:2px 4px 6px}
+.kbc h5 span{background:var(--surf);border-radius:999px;padding:3px 7px;font-size:10px;
+             box-shadow:0 1px 2px rgba(26,29,28,.08)}
+.kcard{background:var(--surf);border-radius:13px;padding:11px;box-shadow:0 1px 3px rgba(26,29,28,.07)}
+.kcard .i{font:800 13px/1 var(--f)}
+.kcard .d{font:700 11px/1.3 var(--f);margin-top:5px;color:var(--t1)}
+.kcard .s{margin-top:6px;display:inline-block;background:var(--sunken);border-radius:999px;
+          padding:3px 8px;font:800 10px/1 var(--f);color:var(--t2)}
+.kcard .go{margin-top:8px;height:28px;border-radius:9px;background:var(--b050);color:var(--b700);
+           font:800 11px/28px var(--f);text-align:center}
+.kcard.rdy .go{background:var(--a500);color:#fff}
+
+/* bars + donut */
+.bars{display:flex;align-items:flex-end;gap:10px;height:120px}
+.bars .b{flex:1;background:var(--b300);border-radius:5px 5px 2px 2px}
+.bars .b.hi{background:var(--b600)}
+.donut{width:132px;height:132px;border-radius:50%;display:grid;place-items:center;position:relative}
+.donut::after{content:'';position:absolute;inset:14px;background:var(--surf);border-radius:50%}
+.donut b{position:relative;z-index:1;font:800 27px/1 var(--f);letter-spacing:-1px}
+.meter{height:9px;border-radius:9px;background:var(--sunken);overflow:hidden}
+.meter i{display:block;height:100%;border-radius:9px;background:var(--b500)}
+.meter i.o{background:var(--a500)}
+
+/* QR */
+.qr{width:190px;height:190px;background:#fff;border-radius:18px;padding:14px;display:grid;
+    place-items:center;box-shadow:0 2px 16px rgba(26,29,28,.08)}
+.qr svg{width:100%;height:100%}
+
+/* slide layouts */
+.two{display:grid;grid-template-columns:1fr auto;gap:70px;align-items:center;flex:1}
+.two-l{display:grid;grid-template-columns:auto 1fr;gap:70px;align-items:center;flex:1}
+.center{display:grid;place-items:center;text-align:center;flex:1}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:22px}
+.feat{background:var(--surf);border-radius:24px;padding:30px;box-shadow:0 1px 3px rgba(26,29,28,.05)}
+.dark .feat{background:rgba(255,255,255,.07);box-shadow:none}
+.feat .ic{width:52px;height:52px;border-radius:16px;background:var(--b050);color:var(--b600);
+          display:grid;place-items:center;font-size:23px;margin-bottom:18px}
+.dark .feat .ic{background:rgba(107,212,174,.20);color:var(--b300)}
+.feat h4{font:800 21px/1.25 var(--f);letter-spacing:-.3px;margin-bottom:9px}
+.feat p{font:500 15px/1.55 var(--f);color:var(--t2)}
+.dark .feat p{color:rgba(255,255,255,.68)}
+.cap{font:700 12px/1 var(--f);letter-spacing:1.4px;color:var(--t3);text-transform:uppercase}
+</style>
+</head>
+<body>
+<div id="err" style="position:fixed;z-index:999;top:0;left:0;right:0;background:#FCE7E5;
+  color:#8E201B;font:600 13px/1.5 monospace;padding:12px;display:none;white-space:pre-wrap"></div>
+<div id="stage"></div>
+<div class="hint">← → Space · F fullscreen</div>
+
+<script>
+onerror=(m,s,l,c,e)=>{const d=document.getElementById('err');d.style.display='block';
+  d.textContent='АЛДАА '+(e&&e.stack||m);};
+const C={b900:'#052E22',b800:'#07422F',b700:'#0A5540',b600:'#0E6B4F',b300:'#6BD4AE',b200:'#A9E9D0',b050:'#EEFBF5',
+ a500:'#FF7A29',a600:'#E86A16',a100:'#FFEDE1',a300:'#FFB781',a700:'#B84A0C',bg:'#FAF9F6',surf:'#fff',sunken:'#F3F1EC',
+ line:'#E6E3DC',t1:'#1A1D1C',t2:'#5C6563',t3:'#8E9795',ok:'#12855F',warn:'#E8A317',bad:'#D0342C'};
+const P=n=>n.toLocaleString('en-US')+'₮';
+const IMG=(id,w=600)=>`https://images.unsplash.com/${id}?w=${w}&q=80&auto=format&fit=crop`;
+const DISH=[['Бууз',4500,4.6,'photo-1563245372-f21724e3856d','🔥 Эрэлт ихтэй'],
+ ['Тахианы цуйван',5500,4.8,'photo-1569718212165-3a8278d5f624','🔥 Эрэлт ихтэй'],
+ ['Ногоотой хуурга',4800,4.4,'photo-1546069901-ba9599a7e63c',''],
+ ['Гурилтай шөл',4000,4.2,'photo-1547592166-23ac45744acd',''],
+ ['Жимсний салат',2500,4.5,'photo-1512621776951-a57141f2eefd','Шинэ'],
+ ['Сүү',1500,4.3,'photo-1550583724-b2692b85b150','']];
+
+/* deterministic QR-looking matrix (stylised — not a scannable code) */
+function qrSVG(n=21){
+  let h=99,s='';
+  const rnd=()=>{h=(h*1103515245+12345)&0x7fffffff;return h/0x7fffffff;};
+  const inFinder=(r,c)=>(r<7&&c<7)||(r<7&&c>n-8)||(r>n-8&&c<7);
+  const finder=(r,c)=>
+    `<rect x="${c}" y="${r}" width="7" height="7" fill="${C.b900}"/>`+
+    `<rect x="${c+1}" y="${r+1}" width="5" height="5" fill="#fff"/>`+
+    `<rect x="${c+2}" y="${r+2}" width="3" height="3" fill="${C.b900}"/>`;
+  for(let r=0;r<n;r++)for(let c=0;c<n;c++){
+    if(inFinder(r,c))continue;
+    if(rnd()>.52) s+=`<rect x="${c}" y="${r}" width="1" height="1" fill="${C.b900}"/>`;
+  }
+  s+=finder(0,0)+finder(0,n-7)+finder(n-7,0);
+  return `<svg viewBox="0 0 ${n} ${n}" shape-rendering="crispEdges">${s}</svg>`;
+}
+const slot=(tm,ms,bd,cls='')=>`<div class="slot ${cls}"><div class="d">${cls==='sel'?'✓':cls==='al'?'!':''}</div>
+  <div style="min-width:0"><div class="tm">${tm}</div><div class="ms">${ms}</div></div>
+  <div class="bd">${bd}</div></div>`;
+const navB=(on=0)=>`<div class="pnav">${['Нүүр','Меню','Захиалга','Wallet','Профайл']
+  .map((n,i)=>`<div class="${i===on?'on':''}"><div class="pill" style="opacity:${i===on?1:0}"></div>
+  <i class="${i===on?'':'sm'}" style="${i===on?'':'background:none;border:2px solid currentColor'}"></i>
+  <span>${n}</span></div>`).join('')}</div>`;
+const sbar=()=>`<div class="sbar"><span>11:38</span><span>▮▮▮ ጁ ▰</span></div>`;
+const foodCard=d=>`<div class="fc"><div class="ph"><img src="${IMG(d[3],420)}" alt="">
+  ${d[4]?`<span class="tag ${d[4]==='Шинэ'?'f':''}">${d[4]}</span>`:''}
+  <span class="hrt">♥</span><span class="add">+</span></div>
+  <div class="b"><div class="n">${d[0]}</div>
+  <div class="m"><span class="p">${P(d[1])}</span><span class="r">★ ${d[2].toFixed(1)}</span></div></div></div>`;
+
+const PHONE_HOME=`<div class="phone">${sbar()}
+ <div class="pbody">
+  <div><div class="lbl">9А АНГИ</div><div class="ttl" style="margin-top:3px">Сайн уу, Бат 👋</div></div>
+  <div class="wc"><div class="lbl" style="color:rgba(255,255,255,.65)">МИНИЙ WALLET</div>
+   <div class="amt">25,500₮</div>
+   <div style="display:flex;justify-content:space-between;align-items:center">
+    <div class="sm">Бат-Эрдэнэ · •••• 4421</div>
+    <div style="height:30px;padding:0 12px;border-radius:999px;background:rgba(255,255,255,.18);
+         font:800 12px/30px var(--f)">+ Цэнэглэх</div></div></div>
+  <div class="qb"><h4>Өнөөдөр дараалал хүлээхгүй</h4>
+   <div class="sml" style="margin-top:4px">Авах цагаа урьдчилж сонгоорой.</div>
+   <div style="margin-top:14px"><span class="cta">Цагаа сонгох →</span></div></div>
+  <div style="background:var(--a100);border-radius:18px;padding:12px 14px;display:flex;gap:11px;align-items:center">
+   <div style="width:30px;height:30px;border-radius:50%;background:var(--a500);color:#fff;
+        display:grid;place-items:center;font-size:15px">🔥</div>
+   <div style="min-width:0"><div style="font:800 14px/1.2 var(--f)">Тахианы цуйван</div>
+   <div class="sml" style="color:var(--a700);font-size:12px;white-space:nowrap;overflow:hidden;
+        text-overflow:ellipsis">Өнөөдөр хамгийн их захиалсан</div></div></div>
+  <div style="display:flex;gap:7px;overflow:hidden">
+   ${['Бүгд','Үндсэн хоол','Хөнгөн','Ундаа'].map((c,i)=>`<span style="height:34px;padding:0 14px;
+     border-radius:999px;display:inline-flex;align-items:center;font:700 12px/1 var(--f);flex:none;
+     background:${i===0?C.b600:'#fff'};color:${i===0?'#fff':C.t2};
+     box-shadow:${i===0?'none':'inset 0 0 0 1.5px '+C.line}">${c}</span>`).join('')}</div>
+  <div><div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:9px">
+    <span style="font:800 17px/1 var(--f)">Өнөөдрийн меню</span>
+    <span style="font:800 12px/1 var(--f);color:var(--b600)">Бүгд →</span></div>
+   <div class="rail">${DISH.slice(0,3).map(foodCard).join('')}</div></div>
+ </div>${navB(0)}</div>`;
+
+const PHONE_QUEUE=`<div class="phone">${sbar()}
+ <div class="pbody">
+  <div><div class="ttl">Хоолоо авах цаг</div>
+   <div class="sml" style="margin-top:5px;max-width:270px">Хүмүүсийг нэг дор цуглуулахгүйгээр
+    өөрийн цагаа сонгоорой.</div></div>
+  <div style="display:flex;flex-direction:column;gap:10px">
+   ${slot('11:30–11:40','Захиалгын тоо · 8','8 сул')}
+   ${slot('11:40–11:50','Захиалгын тоо · 10','⚠ 6 сул үлдлээ','al')}
+   ${slot('11:50–12:00','Захиалгын тоо · 12','⚠ 4 сул үлдлээ','al')}
+   ${slot('12:00–12:10','Таны авах ээлж','8 сул','sel')}
+   ${slot('12:10–12:20','Захиалгын тоо · 10','⚠ 6 сул үлдлээ','al')}</div>
+  <div style="border-radius:22px;padding:20px;color:#fff;
+       background:linear-gradient(150deg,var(--b600),var(--b800));box-shadow:0 10px 26px rgba(14,107,79,.30)">
+   <div class="lbl" style="color:var(--b300)">ТАНЫ АВАХ ЭЭЛЖ</div>
+   <div style="font:800 25px/1.1 var(--f);margin:6px 0 3px">12:00–12:10</div>
+   <div class="sm" style="color:rgba(255,255,255,.78);font-size:13px">8 сул үлдсэн · Захиалгын тоо 8</div>
+   <div style="height:8px;border-radius:8px;background:rgba(255,255,255,.22);margin-top:16px;overflow:hidden">
+    <div style="height:100%;width:0;background:var(--b300);border-radius:8px"></div></div>
+   <div style="display:flex;justify-content:space-between;font:700 11px/1 var(--f);
+        color:rgba(255,255,255,.75);margin-top:8px">
+    <span>12:00</span><span>22 минутын дараа</span><span>12:10</span></div>
+   <div style="margin-top:15px;padding-top:15px;border-top:1px solid rgba(255,255,255,.18);
+        display:flex;align-items:center;gap:9px;font:500 13px/1.4 var(--f)">
+    <i style="width:8px;height:8px;border-radius:50%;background:var(--b300)"></i>
+    Цайны газар одоогоор ачаалал багатай.</div></div>
+ </div>${navB(0)}</div>`;
+
+const PHONE_QR=`<div class="phone">${sbar()}
+ <div class="pbody" style="align-items:center;text-align:center">
+  <div><div class="lbl">ЗАХИАЛГА</div>
+   <div style="font:800 20px/1.2 var(--f);margin-top:4px">№ A1024</div>
+   <div style="display:inline-block;margin-top:8px;background:var(--b100);color:var(--b600);
+        border-radius:999px;padding:5px 11px;font:800 12px/1 var(--f)">🕐 12:00–12:10</div></div>
+  <div class="qr" style="margin-top:8px">${qrSVG()}</div>
+  <div style="display:inline-flex;align-items:center;gap:8px;height:36px;padding:0 16px;
+       border-radius:999px;background:var(--b100);color:var(--b600);font:800 14px/1 var(--f)">
+   <i style="width:9px;height:9px;border-radius:50%;background:currentColor"></i>QR код хүчинтэй</div>
+  <div class="lbl" style="margin-top:8px">Үлдсэн 08:42</div>
+  <div class="sml" style="margin-top:14px;max-width:280px;font-size:14px;color:var(--t1);font-weight:700">
+   QR кодоо цайны газрын уншигчид ойртуулна уу.</div>
+  <div style="margin-top:auto;width:100%;height:44px;border-radius:14px;background:var(--b050);
+       color:var(--b700);font:800 15px/44px var(--f)">Захиалга руу буцах</div>
+ </div>${navB(2)}</div>`;
+
+const PHONE_FOOD=`<div class="phone">${sbar()}
+ <div class="pbody" style="gap:0;padding:0">
+  <div style="height:290px;position:relative;flex:none">
+   <img src="${IMG(DISH[1][3],800)}" alt="" style="width:100%;height:100%;object-fit:cover">
+   <span class="tag" style="left:16px;top:16px;height:26px;padding:0 11px">🔥 Эрэлт ихтэй</span>
+   <span class="hrt" style="right:16px;top:16px;width:38px;height:38px;font-size:17px">♥</span></div>
+  <div style="padding:18px 20px;display:flex;flex-direction:column;gap:12px;flex:1;overflow:hidden">
+   <div><div style="font:800 24px/1.2 var(--f);letter-spacing:-.4px">Тахианы цуйван</div>
+    <div style="display:flex;align-items:center;gap:12px;margin-top:7px">
+     <span class="money">5,500₮</span>
+     <span style="font:800 14px/1 var(--f);color:var(--a600)">★ 4.8</span>
+     <span class="sml">620 kcal</span></div></div>
+   <div style="display:flex;gap:7px">
+    <span class="tag f" style="position:static;height:24px;padding:0 10px">Шинэ</span>
+    <span class="tag" style="position:static;height:24px;padding:0 10px;background:var(--a100);color:var(--a700)">
+     ⚠ Өндөг харшил</span></div>
+   <div class="sml" style="color:var(--t1);font-size:15px;line-height:1.5">
+    Зөөлөн тахиа, ногоо болон гар хийцийн гоймонтой.</div>
+   <div><div class="lbl" style="margin-bottom:8px">ОРЦ</div>
+    <div style="display:flex;flex-wrap:wrap;gap:7px">
+     ${['Тахианы мах','Гоймон','Лууван','Сонгино','Чинжүү'].map(i=>`<span style="height:30px;padding:0 13px;
+      border-radius:999px;background:var(--sunken);font:600 12px/30px var(--f)">${i}</span>`).join('')}</div></div>
+   <div style="display:flex;align-items:center;gap:14px">
+    <span class="lbl">Хэмжээ</span>
+    <div style="display:inline-flex;align-items:center;gap:2px;background:var(--sunken);
+         border-radius:999px;padding:3px">
+     <span style="width:32px;height:32px;border-radius:50%;background:#fff;display:grid;place-items:center;
+       box-shadow:0 1px 2px rgba(0,0,0,.08);font:800 16px/1 var(--f)">−</span>
+     <b style="min-width:30px;text-align:center;font:800 15px/1 var(--f)">1</b>
+     <span style="width:32px;height:32px;border-radius:50%;background:#fff;display:grid;place-items:center;
+       box-shadow:0 1px 2px rgba(0,0,0,.08);font:800 16px/1 var(--f)">+</span></div></div>
+  </div>
+  <div style="padding:14px 20px 18px;display:flex;gap:10px;background:var(--a100);border-radius:20px 20px 0 0">
+   <div style="flex:1"><div style="font:800 14px/1.2 var(--f);color:var(--a700)">
+     ⚠ Энэ хоолонд Глютен агуулагдана.</div>
+    <div style="font:500 12px/1.3 var(--f);color:var(--a700);margin-top:3px">
+     Таны харшилд орно гэж тэмдэглэсэн байна.</div></div></div>
+  ${navB(1)}</div>`;
+
+const PHONE_PAY=`<div class="phone">${sbar()}
+ <div class="pbody">
+  <div class="ttl">Төлбөр</div>
+  <div class="panel" style="box-shadow:none;background:var(--surf)">
+   <div style="display:flex;gap:11px;align-items:center">
+    <img src="${IMG(DISH[1][3],200)}" style="width:48px;height:48px;border-radius:12px;object-fit:cover">
+    <div style="min-width:0"><div style="font:800 14px/1.2 var(--f)">Тахианы цуйван × 1</div>
+     <div class="sml" style="font-size:12px">12:00–12:10 авах</div></div>
+    <b style="margin-left:auto;font:800 15px/1 var(--f)">5,500₮</b></div>
+   <div style="height:1px;background:var(--line);margin:12px 0"></div>
+   <div style="display:flex;gap:11px;align-items:center">
+    <img src="${IMG(DISH[4][3],200)}" style="width:48px;height:48px;border-radius:12px;object-fit:cover">
+    <div style="min-width:0"><div style="font:800 14px/1.2 var(--f)">Жимсний салат × 1</div>
+     <div class="sml" style="font-size:12px">12:00–12:10 авах</div></div>
+    <b style="margin-left:auto;font:800 15px/1 var(--f)">2,500₮</b></div></div>
+  <div class="panel" style="box-shadow:inset 0 0 0 2px var(--b600);background:var(--b050)">
+   <div style="display:flex;align-items:center;gap:12px">
+    <div style="width:42px;height:42px;border-radius:13px;background:var(--b600);color:#fff;
+         display:grid;place-items:center;font-size:19px">💳</div>
+    <div><div style="font:800 15px/1.2 var(--f)">Amjilt Wallet</div>
+     <div class="sml" style="font-size:12px">Үлдэгдэл 25,500₮</div></div>
+    <i style="margin-left:auto;width:20px;height:20px;border-radius:50%;background:var(--b600);
+       box-shadow:inset 0 0 0 4px #fff"></i></div></div>
+  <div class="panel" style="box-shadow:none;background:var(--surf);display:flex;align-items:center;gap:12px">
+   <div style="width:42px;height:42px;border-radius:13px;background:var(--sunken);color:var(--t2);
+        display:grid;place-items:center;font-size:19px">🏦</div>
+   <div style="font:800 15px/1.2 var(--f)">Банкны карт</div>
+   <i style="margin-left:auto;width:20px;height:20px;border-radius:50%;border:2px solid var(--line2)"></i></div>
+  <div style="display:flex;justify-content:space-between;font:500 14px/1 var(--f);color:var(--t2)">
+   <span>Нийт</span><b style="font:800 15px/1 var(--f);color:var(--t1)">8,000₮</b></div>
+  <div style="display:flex;align-items:center;justify-content:center;gap:7px;color:var(--t3);
+       font:500 12px/1 var(--f)">🔒 Төлбөрийн мэдээлэл хамгаалагдсан.</div>
+  <div style="margin-top:auto;height:52px;border-radius:15px;background:var(--b600);color:#fff;
+       font:800 16px/52px var(--f);text-align:center;box-shadow:0 8px 20px rgba(14,107,79,.30)">
+   Захиалгаа баталгаажуулах</div>
+ </div></div>`;
+
+const PHONE_PARENT=`<div class="phone">${sbar()}
+ <div class="pbody">
+  <div><div class="lbl">9А АНГИ</div><div class="ttl" style="margin-top:3px">Сайн байна уу 👋</div></div>
+  <div class="panel" style="box-shadow:inset 0 0 0 1.5px var(--b200);background:var(--b050);
+       display:flex;align-items:center;gap:12px">
+   <div style="width:44px;height:44px;border-radius:50%;background:var(--b600);color:#fff;
+        display:grid;place-items:center;font:800 15px/1 var(--f)">БЭ</div>
+   <div><div style="font:800 15px/1.2 var(--f)">Бат-Эрдэнэ</div>
+    <div class="sml" style="font-size:12px">9А анги</div></div>
+   <span style="margin-left:auto;color:var(--t3);font-size:18px">⌄</span></div>
+  <div class="wc"><div class="lbl" style="color:rgba(255,255,255,.65)">ҮЛДЭГДЭЛ</div>
+   <div class="amt">25,500₮</div>
+   <div class="sm">Өнөөдрийн зарцуулалт 8,500₮</div></div>
+  <div class="panel" style="box-shadow:none;background:var(--surf)">
+   <div class="pt">Энэ 7 хоног <span class="mono" style="float:right">32,500₮</span></div>
+   <div class="bars" style="height:88px;margin-top:14px">
+    ${[4200,5100,3800,5600,4500,5200,4000].map((v,i)=>`<div class="b ${i===3?'hi':''}"
+      style="height:${v/5600*100}%"></div>`).join('')}</div>
+   <div style="display:flex;justify-content:space-between;margin-top:8px">
+    ${['Да','Мя','Лх','Пүр','Ба','Бя','Ня'].map(d=>`<span class="lbl">${d}</span>`).join('')}</div></div>
+  <div class="panel" style="box-shadow:inset 0 0 0 2px var(--a300);background:var(--a100)">
+   <div style="display:flex;justify-content:space-between;align-items:baseline">
+    <span style="font:800 14px/1.2 var(--f);color:var(--a700)">⚠ Өдрийн лимит</span>
+    <b class="mono" style="font:800 15px/1 var(--f);color:var(--a700)">8,500₮ / 10,000₮</b></div>
+   <div class="meter" style="margin-top:11px;background:rgba(255,255,255,.6)">
+    <i class="o" style="width:85%"></i></div>
+   <div style="font:500 12px/1.3 var(--f);color:var(--a700);margin-top:8px">
+    Өдрийн лимитийн 85% хүрчээ. Ойролцоо байна.</div></div>
+  <div class="panel" style="box-shadow:none;background:var(--surf)">
+   <div class="pt">Сүүлийн хоол</div>
+   ${[['Тахианы цуйван',5500,1],['Жимсний салат',2500,4],['Сүү',1500,5]].map(([n,pr,i])=>
+    `<div style="display:flex;align-items:center;gap:11px;padding:9px 0;border-top:1px solid var(--line)">
+     <img src="${IMG(DISH[i][3],140)}" style="width:36px;height:36px;border-radius:10px;object-fit:cover">
+     <span style="font:700 13px/1.2 var(--f)">${n}</span>
+     <b class="mono" style="margin-left:auto;font:800 13px/1 var(--f)">${P(pr)}</b></div>`).join('')}</div>
+ </div>${navB(0)}</div>`;
+
+const CON_CAFE=`<div class="console" style="width:1180px;height:742px;flex:none">
+ <div class="chrome"><i class="d"></i><i class="d"></i><i class="d"></i>
+  <div class="u">canteen.amjilt.mn/sambar</div></div>
+ <div class="cbody">
+  <div style="display:flex;align-items:center;gap:12px">
+   <div class="mark" style="width:38px;height:38px;border-radius:12px;font-size:17px">🍜</div>
+   <div><div style="font:800 17px/1.2 var(--f)">Amjilt Canteen</div>
+    <div class="sml" style="font-size:12px">Цайны газрын самбар · 11:38</div></div>
+   <div class="cnav" style="margin-left:auto"><b class="on">Тойм</b><b>Гал тогоо</b>
+    <b>Хаягдал</b><b>Агуулах</b></div></div>
+  <div class="tiles c4">
+   ${[['НИЙТ ЗАХИАЛГА','124','box',C.b050,C.b600],['БЭЛЭН БОЛСОН','87','✓',C.b100,C.ok],
+      ['БЭЛТГЭЖ БАЙНА','37','🍲',C.sunken,C.a600],
+      ['ӨНӨӇДРИЙН БОРЛУУЛАЛТ','502,000₮','💳',C.b100,C.ok]].map(([k,v,ic,bg,fg])=>
+     `<div class="stat" style="padding:18px"><div style="display:flex;justify-content:space-between;
+       align-items:flex-start"><div class="k">${k}</div>
+      <span style="width:30px;height:30px;border-radius:10px;background:${bg};color:${fg};
+        display:grid;place-items:center;font-size:14px">${ic}</span></div>
+      <div class="v" style="font-size:30px;margin-top:7px">${v}</div></div>`).join('')}</div>
+  <div class="panel">
+   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+    <div><div class="pt">Одоогийн дараалал</div>
+     <div class="ps">Слот бүрийн захиалгын тоо · хүчинтэй 16 сул</div></div>
+    <span style="background:#FEF3DC;color:#9A6A06;border-radius:999px;padding:6px 12px;
+      font:800 12px/1 var(--f)">⚠ Ачаалал: Дунд</span></div>
+   <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:11px">
+    ${[['11:30–11:40',8,8],['11:40–11:50',10,6],['11:50–12:00',12,4],['12:00–12:10',8,8],
+       ['12:10–12:20',10,6]].map(([t,n,f],i)=>
+     `<div style="border-radius:14px;padding:13px;background:var(--surf);
+       box-shadow:inset 0 0 0 ${i===1?'2px '+C.b600:'0 0 0 1px '+C.line};position:relative">
+      ${i===1?`<span style="position:absolute;top:-8px;left:13px;background:${C.b600};color:#fff;
+        border-radius:999px;padding:3px 8px;font:800 9px/1 var(--f)">Одоо</span>`:''}
+      <div style="font:800 13px/1 var(--f)">${t}</div>
+      <div class="mono" style="font:800 24px/1 var(--f);margin-top:7px;color:${f<=4?C.a600:C.t1}">${n}</div>
+      <div class="lbl" style="margin-top:3px">захиалга</div>
+      <div class="meter" style="margin-top:9px;height:6px">
+       <i class="${f<=4?'o':''}" style="width:${n/16*100}%"></i></div>
+      <div class="lbl" style="margin-top:5px">${f} сул</div></div>`).join('')}</div></div>
+  <div style="display:grid;grid-template-columns:3fr 2fr;gap:16px">
+   <div class="panel"><div class="pt">Өнөөдрийн хамгийн их</div><div class="ps">Захиалгаар</div>
+    <div style="margin-top:12px;display:flex;flex-direction:column;gap:9px">
+     ${[['Бууз',45,1],['Тахианы цуйван',40,2],['Ногоотой хуурга',39,3]].map(([n,v,i])=>
+      `<div style="display:flex;align-items:center;gap:11px">
+       <span style="width:22px;height:22px;border-radius:7px;font:800 11px/22px var(--f);text-align:center;
+         background:${i===1?C.b600:C.sunken};color:${i===1?'#fff':C.t2}">${i}</span>
+       <span style="font:700 13px/1 var(--f);width:126px">${n}</span>
+       <span class="meter" style="flex:1;height:8px"><i style="width:${v/45*100}%"></i></span>
+       <b class="mono" style="width:30px;text-align:right;font:800 13px/1 var(--f)">${v}</b>
+      </div>`).join('')}</div></div>
+   <div class="panel"><div class="pt">Гал тогоо</div><div class="ps">Тухайн мөчийн ачаалал</div>
+    <div style="margin-top:12px;display:flex;flex-direction:column;gap:8px">
+     ${[['Хүлээгдэж байна',3,'var(--warn)'],['Бэлтгэж байна',3,C.a500],
+        ['Бэлэн',2,C.ok],['Олгосон',2,'var(--line2)']].map(([n,v,c])=>
+      `<div style="display:flex;align-items:center;gap:10px;padding:7px 0;
+        border-bottom:1px solid var(--line)">
+       <i style="width:8px;height:8px;border-radius:50%;background:${c}"></i>
+       <span style="font:700 13px/1 var(--f)">${n}</span>
+       <b class="mono" style="margin-left:auto;font:800 15px/1 var(--f)">${v}</b></div>`).join('')}
+    </div></div></div>
+ </div></div>`;
+
+const CON_ADMIN=`<div class="console" style="width:1420px;height:800px;flex:none">
+ <div class="chrome"><i class="d"></i><i class="d"></i><i class="d"></i>
+  <div class="u">admin.amjilt.mn</div></div>
+ <div class="cbody">
+  <div style="display:flex;align-items:center;gap:12px">
+   <div class="mark" style="width:38px;height:38px;border-radius:12px;font-size:16px">📊</div>
+   <div><div style="font:800 17px/1.2 var(--f)">Сургуулийн самбар</div>
+    <div class="sml" style="font-size:12px">Амжилт Интернэт Яам · 2026–2027 оны улирал</div></div>
+   <div class="cnav" style="margin-left:auto"><b class="on">Тойм</b><b>Анги бүр</b><b>Хаягдал</b></div></div>
+  <div class="tiles c3">
+   ${[['НИЙТ СУРАГЧ','1,240','👥'],['ИДЭВХТЭЙ ХЭРЭГЛЭГЧ','968','✓'],
+      ['НИЙТ ЗАХИАЛГА','24,318','📦'],['НИЙТ ОРЛОГО','98,420,000₮','💳'],
+      ['AVERAGE PICKUP','42 сек','🕐'],['ХҮНСНИЙ ХАЯГДАЛ','4.0%','↓']].map(([k,v,ic])=>
+     `<div class="stat" style="padding:16px 20px"><div style="display:flex;justify-content:space-between;
+       align-items:flex-start"><div class="k">${k}</div>
+      <span style="width:28px;height:28px;border-radius:9px;background:${C.b050};color:${C.b600};
+        display:grid;place-items:center;font-size:13px">${ic}</span></div>
+      <div class="v" style="font-size:27px;margin-top:6px">${v}</div></div>`).join('')}</div>
+  <div style="display:grid;grid-template-columns:3fr 2fr;gap:16px">
+   <div class="panel"><div class="pt">Сүүлийн 30 хоногийн захиалга</div>
+    <div class="ps">Өдөр тутмын дундаж 197 захиалга</div>
+    <svg viewBox="0 0 620 150" preserveAspectRatio="none" style="width:100%;height:150px;margin-top:12px">
+     <defs><linearGradient id="ag" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#12855F" stop-opacity=".24"/>
+      <stop offset="100%" stop-color="#12855F" stop-opacity="0"/></linearGradient></defs>
+     ${[0,.25,.5,.75,1].map(f=>`<line x1="0" y1="${f*150}" x2="620" y2="${f*150}" stroke="#E6E3DC"/>`).join('')}
+     <path d="M0 132 L21 126 L42 129 L63 118 L84 122 L105 114 L126 119 L147 108 L168 112
+      L189 100 L210 104 L231 96 L252 99 L273 90 L294 94 L315 84 L336 88 L357 78 L378 82
+      L399 71 L420 75 L441 64 L462 68 L483 57 L504 61 L525 50 L546 54 L567 43 L588 47 L609 36
+      L609 150 L0 150 Z" fill="url(#ag)"/>
+     <path d="M0 132 L21 126 L42 129 L63 118 L84 122 L105 114 L126 119 L147 108 L168 112
+      L189 100 L210 104 L231 96 L252 99 L273 90 L294 94 L315 84 L336 88 L357 78 L378 82
+      L399 71 L420 75 L441 64 L462 68 L483 57 L504 61 L525 50 L546 54 L567 43 L588 47 L609 36"
+      fill="none" stroke="#0E6B4F" stroke-width="2.5" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>
+    </svg>
+    <div style="display:flex;justify-content:space-between" class="lbl" style="margin-top:8px">
+     <span>10 хоногийн өмнө</span><span>Өнөөдөр · 242 захиалга</span></div></div>
+   <div class="panel"><div class="pt">Хэрэглээ</div>
+    <div class="ps">Бүхтгэлтэй сурагчийн хувь</div>
+    <div style="display:flex;align-items:center;gap:20px;margin-top:14px">
+     <div class="donut" style="background:conic-gradient(${C.b600} 0 78%, ${C.line} 78% 100%)">
+      <b>78%</b></div>
+     <div style="display:flex;flex-direction:column;gap:11px;flex:1">
+      <div style="display:flex;align-items:center;gap:9px">
+       <i style="width:10px;height:10px;border-radius:3px;background:${C.b600}"></i>
+       <span style="font:700 13px/1 var(--f)">Идэвхтэй</span>
+       <b class="mono" style="margin-left:auto;font:800 13px/1 var(--f)">968</b></div>
+      <div style="display:flex;align-items:center;gap:9px">
+       <i style="width:10px;height:10px;border-radius:3px;background:${C.line}"></i>
+       <span style="font:700 13px/1 var(--f)">Бүртгэгдээгүй</span>
+       <b class="mono" style="margin-left:auto;font:800 13px/1 var(--f)">272</b></div></div></div></div></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+   <div class="panel"><div class="pt">Хамгийн их захиалсан хоол</div>
+    ${[['Тахианы цуйван',4821,100,1],['Бууз',4117,85,0],['Ногоотой хуурга',3904,81,0],
+       ['Гурилтай шөл',3202,66,0],['Жимсний салат',2688,56,0]].map(([n,v,p,i])=>
+     `<div style="display:flex;align-items:center;gap:11px;padding:8px 0;border-top:1px solid var(--line)">
+      <span style="width:22px;height:22px;border-radius:7px;font:800 11px/22px var(--f);text-align:center;
+        background:${i?C.b600:C.sunken};color:${i?'#fff':C.t2}">${i+1}</span>
+      <span style="font:700 13px/1 var(--f);width:132px">${n}</span>
+      <span class="meter" style="flex:1;height:8px"><i style="width:${p}%"></i></span>
+      <b class="mono" style="width:48px;text-align:right;font:800 12px/1 var(--f)">${v.toLocaleString('en-US')}</b>
+     </div>`).join('')}</div>
+   <div class="panel"><div class="pt">Smart Queue-ийн үр нөлөө</div>
+    <div class="tiles c2" style="margin-top:12px">
+     ${[['ДУНДАЖ КҮТЭЭЛЦЭЛ','4 мин','Өмнө нь 11 мин байсан'],
+        ['ДАРААЛД ГАРАХ','3.1%','Сурагч бүрийн хувь']].map(([k,v,d])=>
+      `<div style="background:var(--sunken);border-radius:14px;padding:14px">
+       <div class="k">${k}</div><div style="font:800 24px/1 var(--f);margin-top:6px">${v}</div>
+       <div class="ps">${d}</div></div>`).join('')}</div>
+    <div style="margin-top:14px">
+     <div style="display:flex;justify-content:space-between;font:700 12px/1 var(--f);margin-bottom:7px">
+      <span style="color:var(--t2)">Слот ашиглалт</span><b class="mono">68%</b></div>
+     <div class="meter"><i style="width:68%"></i></div></div></div></div>
+ </div></div>`;
+
+const S=[];
+const S_=(cls,inner)=>S.push({cls,inner});
+
+/* 1 cover */
+S_('dark',`<div class="center"><div style="max-width:1080px">
+ <div class="mark" style="margin:0 auto 30px">🍜</div>
+ <div class="eyebrow" style="color:var(--b300)">СУРГУУЛИЙН ХООЛНЫ ШИНЭ ҮЕ</div>
+ <h1 class="big">Amjilt Canteen</h1>
+ <p class="lede" style="margin:22px auto 0;font-size:24px">
+  Захиал. Цагаа сонго. QR-аа уншуул. Хоолоо ав.</p>
+ <div style="margin-top:44px;display:flex;gap:12px;justify-content:center">
+  ${['Smart Queue','QR Pickup','Amjilt Wallet','Food Waste Meter'].map(t=>
+   `<span style="height:40px;padding:0 18px;border-radius:999px;background:rgba(255,255,255,.09);
+     color:var(--b300);font:800 14px/40px var(--f)">${t}</span>`).join('')}</div></div></div>`);
+
+/* 2 problem */
+S_('',`<div class="cap">Асуудал</div>
+ <div class="two" style="grid-template-columns:1fr 1fr;gap:64px">
+  <div><h2 class="big">Цайны газрын дараалал<br>хүүхдэд цаг<br>болж байна.</h2>
+   <p class="lede" style="margin-top:24px">11:40-ийн цагт бүх сурагч нэгэн зэрэг цуглах тул
+    15–20 минут зогсоно. Хоол хүрэхэд багаасаар халуун, зарим нь огт дуусахгүй.</p>
+   <div class="tiles c3" style="margin-top:36px">
+    ${[['~18 мин','Дундаж күтээлцэл'],['3,900₮','Өдөрт урьдчилан дуусах хоол'],['~62%','Хүнсний илүүдэл']].map(([v,k])=>
+     `<div class="stat"><div class="v" style="font-size:34px">${v}</div>
+      <div class="d">${k}</div></div>`).join('')}</div></div>
+  <div class="panel" style="padding:30px">
+   <div class="pt" style="font-size:17px">Одоогийн байдал · 11:38</div>
+   <div style="margin-top:18px;display:flex;flex-direction:column;gap:9px">
+    ${[['11:30–11:40',8],['11:40–11:50',10],['11:50–12:00',12],['12:00–12:10',8],['12:10–12:20',10]]
+     .map(([t,n])=>`<div style="display:flex;align-items:center;gap:11px">
+      <span style="font:700 13px/1 var(--f);width:96px">${t}</span>
+      <span class="meter" style="flex:1"><i style="width:${n/16*100}%"></i></span>
+      <b class="mono" style="width:26px;text-align:right;font:800 13px/1 var(--f)">${n}</b></div>`).join('')}
+   </div>
+   <div style="margin-top:18px;padding:14px;border-radius:14px;background:var(--a100);
+        font:500 13px/1.5 var(--f);color:var(--a700)">
+    Бүх сурагч 10 минутын хугацаанд нэгэн зэрэг ирнэ. Дарааллын удирдлага байхгүй.</div></div></div>`);
+
+/* 3 four features */
+S_('',`<div class="cap">Бүтээгдэхүүн</div>
+ <div style="margin-top:14px"><h2 class="big">Дөрвөн зүйл нь энэ бүтээгдэхүүнийг<br>Amjilt Canteen болгоно.</h2></div>
+ <div class="grid4" style="margin-top:44px">
+  ${[['🕐','SMART QUEUE',`Сурагч дурын дараалал биш, өөрийн авах цаг сонгоно. 10 минутын бүлэгт хүмүүс
+     нэг дор цуглуулахгүй.`,'Дараалал 18 мин → 4 мин'],
+    ['📱','QR PICKUP','Нэг скан. Үглээгч, мөр, маргаан алга. Хоол бэлэн болоход нэг мэдэгдэл.',
+     'Дарааллын маргаан 0'],
+    ['💳','AMJILT WALLET','Мөнгө нь төлбөрийн алхам биш, бүтээгдэхүүний хэсэг. Цэнэглэх, гүйлгээ, лимит.',
+     'Төлбөрийн алхам 5 → 2'],
+    ['↓','FOOD WASTE METER','Урьдчилсан захиалгаар бэлтгэж, илүүдэл хэмжигдэнэ. Сургуулын тоонд харагдана.',
+     'Хаягдал 4.9% → 4.0%']].map(([ic,t,d,r])=>
+   `<div class="feat"><div class="ic">${ic}</div><h4>${t}</h4><p>${d}</p>
+    <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--line);
+      font:800 13px/1 var(--f);color:var(--b600)">${r}</div></div>`).join('')}</div>`);
+
+/* 4 smart queue */
+S_('',`<div class="two-l">
+ <div style="width:400px;flex:none">${PHONE_QUEUE}</div>
+ <div>
+  <div class="eyebrow">SMART QUEUE</div>
+  <h2 class="big">Дараалал биш.<br>Авах цаг сонго.</h2>
+  <p class="lede" style="margin-top:22px">Сурагч өдрийнхөө цагийг өгөгдөн байдлаар сонгоно.
+   Слот бүр 16 султай. Сурагч сонгосон цаг нь <b style="color:var(--t1)">түүний биш</b>.</p>
+  <div style="margin-top:32px;display:flex;flex-direction:column;gap:10px;max-width:470px">
+   ${[['≥ 8 сул','Нөөцтэй — ногоон',C.b600],['1–7 сул','Болж байна — улбар шар',C.a600],
+      ['0 сул','Дүүрсэн — сонгож болохгүй',C.bad]].map(([a,b,col])=>
+    `<div style="display:flex;align-items:center;gap:12px;padding:12px 15px;border-radius:14px;
+      background:#fff;box-shadow:inset 0 0 0 1.5px var(--line)">
+     <i style="width:10px;height:10px;border-radius:50%;background:${col};flex:none"></i>
+     <b style="font:800 15px/1 var(--f);width:74px">${a}</b>
+     <span class="sml">${b}</span></div>`).join('')}</div>
+  <div style="margin-top:22px;font:500 14px/1.5 var(--f);color:var(--t2);max-width:460px">
+   Төлөв хэзээ ч зөвхөн өнгөөр биш — тоо болон үгээр мөн хэлэгдэнэ.</div></div></div>`);
+
+/* 5 QR */
+S_('',`<div class="two">
+ <div><div class="eyebrow">QR PICKUP</div>
+  <h2 class="big">Нэг скан.<br>Дуусахгүй.</h2>
+  <p class="lede" style="margin-top:22px">Хоол бэлэн болмогц нэг мэдэгдэл. Сурагч QR-аа уншуулж,
+   шууд авна. Уншигчийн талд огт яриа байхгүй.</p>
+  <div style="margin-top:32px;display:flex;flex-direction:column;gap:12px;max-width:470px">
+   ${[['🟢','QR код хүчинтэй','8:42 үлдсэн хугацаатай — хучирсан код ашиглахгүй'],
+      ['⚡','Бэлэн боллоо','Нэг мэдэгдэл · «Таны хоол бэлэн боллоо 🎉»'],
+      ['🔴','Хугацаа дууссан','Шинэ QR үүсгэх товчтой хамгаалагдсан төлөв']].map(([ic,t,d])=>
+    `<div style="display:flex;gap:13px;padding:14px 16px;border-radius:14px;background:#fff;
+      box-shadow:inset 0 0 0 1.5px var(--line)">
+     <span style="font-size:17px">${ic}</span>
+     <div><div style="font:800 15px/1.2 var(--f)">${t}</div>
+      <div class="sml" style="margin-top:3px">${d}</div></div></div>`).join('')}</div>
+  <div style="margin-top:22px;font:500 14px/1.5 var(--f);color:var(--t2)">
+   QR дэлгэцийг ашиглахын тулд нэг ч тайлбар хэрэггүй.</div></div>
+ <div style="width:330px;flex:none">${PHONE_QR}</div></div>`);
+
+/* 6 wallet */
+S_('',`<div class="two">
+ <div style="width:330px;flex:none">${PHONE_PAY}</div>
+ <div><div class="eyebrow">AMJILT WALLET</div>
+  <h2 class="big">Мөнгө нь бүтээгдэхүүн,<br>төлбөрийн алхам биш.</h2>
+  <p class="lede" style="margin-top:22px">Сурагч карт оруулахгүй. Эцэг эх цэнэглэнэ,
+   хүүхдээ хязгаарлана, түүний зарцуулалтыг шууд харна.</p>
+  <div class="tiles c2" style="margin-top:32px;max-width:520px">
+   ${[['Цэнэглэх','5,000₮ · 10,000₮ · 20,000₮ · 50,000₮'],
+      ['Гүйлгээ харах','Бүх зураг, авах-зарцуулах түүх'],
+      ['Хүүхдийн лимит','Өдрийн төсөв — 70% олонцоо, 100% хэтэрвэл улаан'],
+      ['Тэцэтгэл биш','Цэнэглэлт болон захиалгын түүх']].map(([k,v])=>
+    `<div class="stat" style="padding:20px"><div class="pt">${k}</div>
+     <div class="d" style="margin-top:7px">${v}</div></div>`).join('')}</div></div></div>`);
+
+/* 7 food detail */
+S_('',`<div class="two">
+ <div><div class="eyebrow">ХООЛНЫ ДЭЛГЭРЭНГҮЙ</div>
+  <h2 class="big">Хүнсний харшил<br>өгөгдөнөөс нь<br>хагаана.</h2>
+  <p class="lede" style="margin-top:22px">Сурагч «Глютен» сонговол түүний харшилд орсон хоол
+   дээрээ улаан анхааруулга гарч, CTA солигдоно. Та зориулсан үйлчилгээ тэмдэглэгээгүй,
+   тэгэхээр зөвхөн мэдээлэл төдийгүй.</p>
+  <div style="margin-top:30px;padding:16px 18px;border-radius:16px;background:var(--a100);
+       max-width:470px;box-shadow:inset 0 0 0 1.5px var(--a300)">
+   <div style="font:800 15px/1.2 var(--f);color:var(--a700)">⚠ Энэ хоолонд Глютен агуулагдана.</div>
+   <div style="font:500 13px/1.4 var(--f);color:var(--a700);margin-top:4px">
+    Таны харшилд орно гэж тэмдэглэсэн байна.</div></div></div>
+ <div style="width:330px;flex:none">${PHONE_FOOD}</div></div>`);
+
+/* 8 student home */
+S_('',`<div class="two">
+ <div><div class="eyebrow">СУРАГЧИЙН НҮҮР</div>
+  <h2 class="big">Нэг дэлгэцэд<br>бүгд байна.</h2>
+  <p class="lede" style="margin-top:22px">Wallet, өдрийн цаг, хамгийн их захиалсан хоол,
+   бүх меню. Сурагч нэг харалтаасаа бүхнийг мэднэ.</p>
+  <div style="margin-top:30px;display:flex;flex-direction:column;gap:11px;max-width:460px">
+   ${['Wallet — үлдэгдэл, нэг товчтоо цэнэглэх','Smart Queue — «Өнөөдөр дараалал хүлээхгүй»',
+      'Өнөөдрийн меню — 4:3 зураг, үнэ, үнэлгээ, дуртай, + нэмэх'].map(t=>
+    `<div style="display:flex;align-items:center;gap:11px;font:700 15px/1.4 var(--f)">
+     <i style="width:6px;height:6px;border-radius:50%;background:var(--b600);flex:none"></i>${t}</div>`).join('')}</div></div>
+ <div style="width:330px;flex:none">${PHONE_HOME}</div></div>`);
+
+/* 9 parent */
+S_('',`<div class="two">
+ <div style="width:330px;flex:none">${PHONE_PARENT}</div>
+ <div><div class="eyebrow">ЭЦЭГ ЭХИЙН ХАРҮУЛЭГ</div>
+  <h2 class="big">Хүүхдээ хязгаарлаж,<br>зарцуулалтыг<br>шууд харна.</h2>
+  <p class="lede" style="margin-top:22px">Өдрийн төсөв, 7 хоногийн зарцуулалт, хүүхдийн хоол,
+   хүнсний харшил. Мэдэгдэл зөвхөн гурван төрөл — шаардлагатай үед л.</p>
+  <div class="tiles c3" style="margin-top:30px;max-width:520px">
+   ${[['25,500₮','Wallet үлдэгдэл'],['8,500₮','Өнөөдрийн зарцуулалт'],['85%','Өдрийн лимит']].map(([v,k])=>
+    `<div class="stat" style="padding:18px"><div class="v" style="font-size:30px">${v}</div>
+     <div class="d" style="font-size:13px">${k}</div></div>`).join('')}</div>
+  <div style="margin-top:18px;padding:14px 16px;border-radius:14px;background:var(--a100);
+       max-width:520px;font:500 13px/1.5 var(--f);color:var(--a700)">
+    ⚠ Өдрийн лимитийн 85% хүрчээ — олонцоо байна.</div></div></div>`);
+
+/* 10 cafeteria */
+S_('',`<div><div class="cap">Цайны газрын самбар</div>
+ <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-top:12px">
+  <div><h2 class="big">Ачаалал нэг дүрсэнд.<br>Гал тогоо дарааллаар.</h2></div>
+  <div class="tiles c2" style="width:420px">
+   ${[['124','Нийт захиалга'],['502,000₮','Өнөөдрийн борлуулалт']].map(([v,k])=>
+    `<div class="stat" style="padding:16px 20px"><div class="v" style="font-size:29px">${v}</div>
+     <div class="d" style="font-size:13px">${k}</div></div>`).join('')}</div></div>
+ <div style="margin-top:26px;display:flex;justify-content:center">${CON_CAFE}</div></div>`);
+
+/* 11 admin */
+S_('',`<div><div class="cap">Сургуулын самбар</div>
+ <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-top:12px">
+  <div><h2 class="big">Захиргааны авч<br>үзэх бүх тоо<br>нэг дэлгэцэд.</h2></div>
+  <div class="tiles c2" style="width:420px">
+   ${[['1,240','Сурагч · 968 идэвхтэй'],['98,420,000₮','Улирлын орлого']].map(([v,k])=>
+    `<div class="stat" style="padding:16px 20px"><div class="v" style="font-size:29px">${v}</div>
+     <div class="d" style="font-size:13px">${k}</div></div>`).join('')}</div></div>
+ <div style="margin-top:26px;display:flex;justify-content:center">${CON_ADMIN}</div></div>`);
+
+/* 12 numbers */
+S_('dark',`<div style="flex:1;display:flex;flex-direction:column;justify-content:center">
+ <div class="eyebrow" style="color:var(--b300)">ТООГУУД НЭГ ДУРСЭНДЭЭ НИЙЦНЭ</div>
+ <h2 class="big" style="max-width:900px">Бүх дэлгэц дээрх<br>тоо нэг л логикт<br>дагаж бичигдсэн.</h2>
+ <div class="grid4" style="margin-top:46px">
+  ${[['87 + 37','= 124 нийт захиалга'],['45 + 40 + 39','= 124 бэлтгэх таамаглал'],
+     ['1,290 − 1,240','= 50 илүүдэл'],['50 / 61','= ↓18% хаягдал бууралт']].map(([v,k])=>
+   `<div class="feat"><div class="mono" style="font:800 32px/1 var(--f);letter-spacing:-1px">${v}</div>
+    <p style="margin-top:9px">${k}</p></div>`).join('')}</div>
+ <p style="margin-top:40px;font:500 15px/1.6 var(--f);color:rgba(255,255,255,.6);max-width:70ch">
+  Сурагчийн дэлгэц дээрх сул орны тоо, цайны газрын самбар дээрх захиалгын тоо,
+  бэлтгэх хэмжээний таамаглал — гурван нь ч ижил тооноос гарна.</p></div>`);
+
+/* 13 close */
+S_('dark',`<div class="center"><div style="max-width:1000px">
+ <h1 class="big" style="font-size:64px">Захиал. Цагаа сонго.<br>QR-аа уншуул. Хоолоо ав.</h1>
+ <p class="lede" style="margin:28px auto 0;font-size:21px">
+  Amjilt Canteen — 38 дэлгэц, бүрэн дизайн систем, бүх төлөвтэй.<br>
+  Сурагч, эцэг эх, цайны газар, захиргаа — бүгд нэг системд.</p>
+ <div class="tiles c4" style="margin-top:48px">
+  ${[['38','Дэлгэц'],['5','Захиалгын төлөв'],['44px','Хамгийн бага хүрэх хэмжээ'],
+     ['0','Хуурамч дүрс']].map(([v,k])=>
+   `<div class="feat" style="text-align:center;padding:22px">
+    <div class="mono" style="font:800 34px/1 var(--f);color:var(--b300)">${v}</div>
+    <p style="margin-top:8px;font-size:13px">${k}</p></div>`).join('')}</div></div></div>`);
+
+/* ---------- render ---------- */
+const stage=document.getElementById('stage');
+stage.innerHTML=S.map((s,i)=>`<section class="slide ${s.cls}" data-i="${i}">${s.inner}
+ <div class="bar"><span>Amjilt Canteen</span>
+ <span class="dots">${S.map((_,j)=>`<i data-j="${j}" class="${j===i?'cur':''}"></i>`).join('')}</span>
+ <span>${String(i+1).padStart(2,'0')} / ${String(S.length).padStart(2,'0')}</span></div></section>`).join('');
+
+const sl=[...document.querySelectorAll('.slide')];
+let i=0;
+function show(n){
+  i=Math.max(0,Math.min(S.length-1,n));
+  sl.forEach((s,j)=>s.classList.toggle('on',j===i));
+  document.querySelectorAll('.dots i').forEach((d,j)=>d.classList.toggle('cur',j===i));
+  location.hash='#'+(i+1);
+  document.body.classList.add('hide');
+}
+function fit(){
+  const s=Math.min(innerWidth/1920,innerHeight/1080);
+  stage.style.transform=`translate(-50%,-50%) scale(${s})`;
+}
+addEventListener('resize',fit);
+addEventListener('hashchange',()=>{
+  const n=Math.min(S.length,Math.max(1,+location.hash.slice(1)||1))-1;
+  if(n!==i)show(n);
+});
+addEventListener('keydown',e=>{
+  if(['ArrowRight','ArrowDown',' ','PageDown'].includes(e.key)){e.preventDefault();show(i+1)}
+  if(['ArrowLeft','ArrowUp','PageUp'].includes(e.key)){e.preventDefault();show(i-1)}
+  if(e.key==='Home')show(0);
+  if(e.key==='End')show(S.length-1);
+  if(e.key.toLowerCase()==='f')document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen();
+});
+addEventListener('click',e=>{
+  const d=e.target.closest('[data-j]');
+  if(d)return show(+d.dataset.j);
+  show(e.clientX<innerWidth*0.28?i-1:i+1);
+});
+fit();
+show(location.hash?Math.min(S.length,Math.max(1,+location.hash.slice(1)||1))-1:0);
+</script>
+</body>
+</html>

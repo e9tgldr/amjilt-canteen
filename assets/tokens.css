@@ -1,0 +1,192 @@
+/* ============================================================
+   Amjilt Canteen — Design Tokens
+   Source of truth: AMJILT-CANTEEN-SPEC.md §2
+   ============================================================ */
+
+:root {
+  /* ---------- Color: green = system state ---------- */
+  --brand-900: #052E22;
+  --brand-800: #07422F;
+  --brand-700: #0A5540;
+  --brand-600: #0E6B4F;   /* PRIMARY */
+  --brand-500: #12855F;
+  --brand-400: #3AA47E;
+  --brand-300: #6BD4AE;   /* SECONDARY */
+  --brand-200: #A9E9D0;
+  --brand-100: #D6F5E8;
+  --brand-050: #EEFBF5;
+
+  /* ---------- Color: orange = food & attention ---------- */
+  --accent-700: #B84A0C;
+  --accent-600: #E86A16;  /* ACCENT */
+  --accent-500: #FF7A29;
+  --accent-400: #FF9A4D;
+  --accent-300: #FFB781;
+  --accent-100: #FFEDE1;
+
+  /* ---------- Neutral ---------- */
+  --bg: #FAF9F6;
+  --surface: #FFFFFF;
+  --surface-sunken: #F3F1EC;
+  --border: #E6E3DC;
+  --border-strong: #D5D1C7;
+
+  --text-primary: #1A1D1C;
+  --text-secondary: #5C6563;
+  --text-tertiary: #8E9795;
+  --text-on-brand: #FFFFFF;
+  --text-on-accent: #FFFFFF;
+
+  /* ---------- Semantic ---------- */
+  --success: #12855F;
+  --success-bg: #D6F5E8;
+  --warning: #E8A317;
+  --warning-bg: #FEF3DC;
+  --danger: #D0342C;
+  --danger-bg: #FCE7E5;
+
+  /* ---------- Spacing (8px base) ---------- */
+  --s1: 4px;
+  --s2: 8px;
+  --s3: 12px;
+  --s4: 16px;
+  --s5: 20px;
+  --s6: 24px;
+  --s8: 32px;
+  --s10: 40px;
+  --s12: 48px;
+
+  /* ---------- Radius ---------- */
+  --r-card: 20px;
+  --r-card-lg: 24px;
+  --r-input: 14px;
+  --r-btn: 14px;
+  --r-pill: 999px;
+  --r-sm: 10px;
+  --r-xs: 8px;
+
+  /* ---------- Elevation ---------- */
+  --sh-sm: 0 1px 2px rgba(26,29,28,.04), 0 1px 3px rgba(26,29,28,.05);
+  --sh-md: 0 2px 4px rgba(26,29,28,.04), 0 6px 16px rgba(26,29,28,.07);
+  --sh-lg: 0 8px 24px rgba(26,29,28,.08), 0 24px 48px rgba(26,29,28,.10);
+  --sh-brand: 0 6px 18px rgba(14,107,79,.28);
+
+  /* ---------- Type ---------- */
+  --font: "Nunito", -apple-system, "Segoe UI", system-ui, sans-serif;
+
+  --t-display: 800 32px/38px var(--font);
+  --t-title:   800 24px/30px var(--font);
+  --t-title-sm:700 19px/25px var(--font);
+  --t-section: 700 17px/23px var(--font);
+  --t-body:    500 15px/22px var(--font);
+  --t-body-sm: 500 13px/19px var(--font);
+  --t-label:   700 12px/16px var(--font);
+  --t-caption: 700 11px/15px var(--font);
+  --t-money:   800 26px/30px var(--font);
+  --t-money-lg:800 34px/38px var(--font);
+
+  /* ---------- Motion ---------- */
+  --ease-out: cubic-bezier(.32,.72,0,1);
+  --dur-sheet: 240ms;
+  --dur-page: 180ms;
+  --dur-press: 90ms;
+  --dur-status: 400ms;
+
+  /* ---------- Touch ---------- */
+  --tap: 44px;
+
+  /* ---------- Layout ---------- */
+  --nav-h: 76px;
+  --safe-b: 20px;
+  --frame-w: 390px;
+  --frame-h: 844px;
+  --gutter: 20px;
+}
+
+/* ============================================================
+   Reset
+   ============================================================ */
+*, *::before, *::after { box-sizing: border-box; }
+* { margin: 0; padding: 0; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  font: var(--t-body);
+  color: var(--text-primary);
+  background: var(--surface-sunken);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-variant-numeric: tabular-nums;
+}
+
+button, input, select, textarea { font: inherit; color: inherit; }
+button { background: none; border: 0; cursor: pointer; }
+button:disabled { cursor: not-allowed; }
+img { display: block; max-width: 100%; }
+ul, ol { list-style: none; }
+a { color: inherit; text-decoration: none; }
+
+/* Focus: 2px brand-600 + 2px offset, always visible (§12) */
+:focus-visible {
+  outline: 2px solid var(--brand-600);
+  outline-offset: 2px;
+  border-radius: var(--r-xs);
+}
+
+/* ============================================================
+   Utility type roles
+   ============================================================ */
+.t-display  { font: var(--t-display); letter-spacing: -.6px; }
+.t-title    { font: var(--t-title);   letter-spacing: -.4px; }
+.t-title-sm { font: var(--t-title-sm);letter-spacing: -.2px; }
+.t-section  { font: var(--t-section); letter-spacing: -.1px; }
+.t-body     { font: var(--t-body); }
+.t-body-sm  { font: var(--t-body-sm); }
+.t-label    { font: var(--t-label);   letter-spacing: .3px; }
+.t-caption  { font: var(--t-caption); letter-spacing: .4px; }
+.t-money    { font: var(--t-money);   letter-spacing: -.5px; }
+.t-money-lg { font: var(--t-money-lg);letter-spacing: -.8px; }
+
+.dim   { color: var(--text-secondary); }
+.dim-2 { color: var(--text-tertiary); }
+.green { color: var(--brand-600); }
+.orange{ color: var(--accent-600); }
+.red  { color: var(--danger); }
+.tnum  { font-variant-numeric: tabular-nums; }
+.nowrap{ white-space: nowrap; }
+.trunc { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* ============================================================
+   Layout primitives
+   ============================================================ */
+.row  { display: flex; align-items: center; }
+.row-b{ display: flex; align-items: center; justify-content: space-between; }
+.col  { display: flex; flex-direction: column; }
+.grow { flex: 1 1 auto; min-width: 0; }
+.wrap { flex-wrap: wrap; }
+.gap-1{ gap: var(--s1); } .gap-2{ gap: var(--s2); } .gap-3{ gap: var(--s3); }
+.gap-4{ gap: var(--s4); } .gap-5{ gap: var(--s5); } .gap-6{ gap: var(--s6); }
+.gap-8{ gap: var(--s8); }
+
+/* Section header used on every scrolling screen */
+.sec-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: 0 var(--gutter);
+  margin-bottom: var(--s3);
+}
+.sec-head h2 { font: var(--t-section); letter-spacing: -.1px; }
+.sec-head .link {
+  font: var(--t-body-sm); font-weight: 700; color: var(--brand-600);
+  min-height: 32px; display: inline-flex; align-items: center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
+}
